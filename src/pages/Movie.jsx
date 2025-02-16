@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
-import "./styles/App.css";
-import { fetchMovie } from "./services/apiClient";
-import VideoPlayer from "./components/VideoPlayer";
+import { useParams } from "react-router-dom";
+import { fetchMovie } from "../services/apiClient";
+import VideoPlayer from "../components/VideoPlayer";
 
-function App() {
+function Movie() {
+  const { movieId } = useParams();
+
   const [movie, setMovie] = useState(null);
   const [movieSource, setMovieSource] = useState(null);
-  const movieId = 718930;
   useEffect(() => {
     if (movieId) {
       fetchMovie(movieId)
@@ -38,4 +39,4 @@ function App() {
   );
 }
 
-export default App;
+export default Movie;

@@ -1,40 +1,28 @@
-import { useEffect, useState } from "react";
 import "./styles/App.css";
-import { fetchMovie } from "./services/apiClient";
-import VideoPlayer from "./components/VideoPlayer";
+
+import * as React from "react";
+import * as ReactDOM from "react-dom";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+
+import Homepage from "./pages/Homepage";
+import Movie from "./pages/Movie";
+
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Homepage />,
+  },
+  {
+    path: "/movie/:movieId",
+    element: <Movie />,
+  },
+]);
 
 function App() {
-  const [movie, setMovie] = useState(null);
-  const [movieSource, setMovieSource] = useState(null);
-  const movieId = 718930;
-  useEffect(() => {
-    if (movieId) {
-      fetchMovie(movieId)
-        .then((data) => {
-          setMovie(data);
-          console.log(data);
-        })
-        .catch((error) => console.error(error));
-    }
-  }, []);
-
-  useEffect(() => {
-    if (movie) {
-      setMovieSource(
-        movie.sources.find((source) => source.provider === "EmbedSu")?.files[0]
-          .file
-      );
-    }
-  }, [movie]);
-
   return (
-    <>
-      {movieSource ? (
-        <VideoPlayer m3u8Url={movieSource} />
-      ) : (
-        <h1>loading...</h1>
-      )}
-    </>
+    <div className="App">
+      <RouterProvider router={router} />
+    </div>
   );
 }
 
