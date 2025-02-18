@@ -1,40 +1,27 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { fetchMovie } from "../services/apiClient";
-import VideoPlayer from "../components/VideoPlayer";
+import { Link, useNavigate } from "react-router-dom";
 
 function Movie() {
-  const { movieId } = useParams();
+  const [movieId, setMovieId] = useState("");
+  const navigate = useNavigate();
 
-  const [movie, setMovie] = useState(null);
-  const [movieSource, setMovieSource] = useState(null);
-  useEffect(() => {
-    if (movieId) {
-      fetchMovie(movieId)
-        .then((data) => {
-          setMovie(data);
-          console.log(data);
-        })
-        .catch((error) => console.error(error));
-    }
-  }, []);
-
-  useEffect(() => {
-    if (movie) {
-      setMovieSource(
-        movie.sources.find((source) => source.provider === "EmbedSu")?.files[0]
-          .file
-      );
-    }
-  }, [movie]);
-
+  function handleMovieIdSubmit(e) {
+    e.preventDefault();
+    navigate(`/movie/${movieId}`);
+  }
   return (
     <>
-      {movieSource ? (
-        <VideoPlayer m3u8Url={movieSource} />
-      ) : (
-        <h1>loading...</h1>
-      )}
+      <h1>Enter a Movie id</h1>
+      <form onSubmit={handleMovieIdSubmit}>
+        <input
+          type="text"
+          placeholder="Enter a movie id"
+          value={movieId}
+          onChange={(e) => setMovieId(e.target.value)}
+        />
+        <button type="submit">Watch</button>
+      </form>
+      <Link to={"/movie/339403"}>Watch sample movie</Link>
     </>
   );
 }

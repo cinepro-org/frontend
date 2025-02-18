@@ -4,8 +4,9 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
-import Homepage from "./pages/Homepage";
+import Homepage from "./pages/HomePage";
 import Movie from "./pages/Movie";
+import WatchMovie from "./pages/WatchMovie";
 
 const router = createBrowserRouter([
   {
@@ -13,8 +14,12 @@ const router = createBrowserRouter([
     element: <Homepage />,
   },
   {
-    path: "/movie/:movieId",
+    path: "/movie",
     element: <Movie />,
+  },
+  {
+    path: "/movie/:movieId",
+    element: <WatchMovie />,
   },
 ]);
 
