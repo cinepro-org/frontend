@@ -1,0 +1,19 @@
+.not-found {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+    font-family: "Arial", sans-serif;
+  }
+  
+  .not-found h1 {
+    font-size: 2.5rem;
+    color: #333;
+  }
+  
+  .not-found p {
+    font-size: 1.2rem;
+    color: #666;
+  }
