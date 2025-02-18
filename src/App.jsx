@@ -7,6 +7,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Homepage from "./pages/HomePage";
 import Movie from "./pages/Movie";
 import WatchMovie from "./pages/WatchMovie";
+import NotFound from "./pages/NotFound";
 
 const router = createBrowserRouter([
   {
@@ -21,6 +22,10 @@ const router = createBrowserRouter([
     path: "/movie/:movieId",
     element: <WatchMovie />,
   },
+  {
+    path: "*",
+    element: <NotFound />,
+  }
 ]);
 
 function App() {

@@ -19,7 +19,8 @@ function Movie() {
           type="text"
           placeholder="Enter a movie id"
           value={movieId}
-          onChange={(e) => setMovieId(e.target.value)}
+          onChange={(e) => setMovieId(e.target.value.replace(/\D/, ""))}
+          pattern="\d*"
         />
         <button type="submit">Watch</button>
       </form>
