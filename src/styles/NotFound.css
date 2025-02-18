@@ -1,19 +1,21 @@
 .not-found {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
-    font-family: "Arial", sans-serif;
-  }
-  
-  .not-found h1 {
-    font-size: 2.5rem;
-    color: #333;
-  }
-  
-  .not-found p {
-    font-size: 1.2rem;
-    color: #666;
-  }
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+  font-family: "Arial", sans-serif;
+  text-align: center;
+}
+
+.not-found h1 {
+  font-size: 3rem;
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+.not-found p {
+  font-size: 1.5rem;
+  color: #666;
+}

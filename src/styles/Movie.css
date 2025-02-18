@@ -5,7 +5,7 @@ body {
     color: #333;
   }
   
-  .App {
+  .movie-container {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -31,6 +31,8 @@ body {
     margin-bottom: 1rem;
     border: 1px solid #ccc;
     border-radius: 4px;
+    width: 100%;
+    max-width: 300px;
   }
   
   button {
@@ -41,6 +43,7 @@ body {
     border: none;
     border-radius: 4px;
     cursor: pointer;
+    transition: background-color 0.3s ease;
   }
   
   button:hover {
@@ -51,8 +54,10 @@ body {
     color: #007bff;
     text-decoration: none;
     margin-top: 1rem;
+    transition: color 0.3s ease;
   }
   
   a:hover {
+    color: #0056b3;
     text-decoration: underline;
   }
