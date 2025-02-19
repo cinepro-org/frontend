@@ -1,7 +1,6 @@
 import "./styles/App.css";
 
-import * as React from "react";
-import * as ReactDOM from "react-dom";
+import "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 import Homepage from "./pages/HomePage";

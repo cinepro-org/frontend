@@ -1,39 +1,47 @@
-import React, { useEffect, useRef } from "react";
+// src/components/VideoPlayer.jsx
+import React, { useEffect } from "react";
 import Hls from "hls.js";
+import PropTypes from "prop-types";
 
-const VideoPlayer = ({ m3u8Url }) => {
-  const videoRef = useRef(null);
+function VideoPlayer({ m3u8Url, subtitles }) {
+    const videoRef = React.useRef(null);
 
-  useEffect(() => {
-    if (videoRef.current) {
-      if (Hls.isSupported()) {
-        const hls = new Hls();
-        hls.loadSource(m3u8Url);
-        hls.attachMedia(videoRef.current);
-        return () => {
-          hls.destroy();
-        };
-      } else if (
-        videoRef.current.canPlayType("application/vnd.apple.mpegurl")
-      ) {
-        videoRef.current.src = m3u8Url;
-      }
-    }
-  }, [m3u8Url]);
+    useEffect(() => {
+        if (Hls.isSupported()) {
+            const hls = new Hls();
+            hls.loadSource(m3u8Url);
+            hls.attachMedia(videoRef.current);
+        } else if (videoRef.current.canPlayType("application/vnd.apple.mpegurl")) {
+            videoRef.current.src = m3u8Url;
+        }
+    }, [m3u8Url]);
 
-  return (
-    <div className="video-player">
-      <video
-        ref={videoRef}
-        controls
-        width="100%"
-        height="auto"
-        style={{ backgroundColor: "black" }}
-      >
-        Your browser does not support the video tag.
-      </video>
-    </div>
-  );
+    return (
+        <video controls ref={videoRef} className="video-player">
+            {subtitles &&
+                subtitles.map((subtitle, index) => (
+                    <track
+                        key={index}
+                        label={subtitle.label}
+                        kind="subtitles"
+                        srcLang={subtitle.lang}
+                        src={subtitle.url}
+                        default={index === 0}
+                    />
+                ))}
+        </video>
+    );
+}
+
+VideoPlayer.propTypes = {
+    m3u8Url: PropTypes.string.isRequired,
+    subtitles: PropTypes.arrayOf(
+        PropTypes.shape({
+            label: PropTypes.string.isRequired,
+            lang: PropTypes.string.isRequired,
+            url: PropTypes.string.isRequired,
+        })
+    ).isRequired,
 };
 
 export default VideoPlayer;
