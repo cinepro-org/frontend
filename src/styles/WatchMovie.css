@@ -7,6 +7,10 @@
   text-align: center;
 }
 
+.watch-movie-container-notLoading{
+  background-color: black;
+}
+
 .provider-selection {
   margin-top: 1rem;
 }
@@ -33,7 +37,6 @@
 
 .video-player {
   width: 100%;
-  max-width: 800px;
   border: 1px solid #ccc;
   border-radius: 4px;
 }

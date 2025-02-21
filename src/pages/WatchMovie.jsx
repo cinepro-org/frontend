@@ -42,7 +42,7 @@ function WatchMovie() {
   }, [selectedProvider, movie]);
 
   return (
-    <div className="watch-movie-container">
+    <div className={`watch-movie-container ${movieFile ? "watch-movie-container-notLoading" : ""}`}>
       {movieFile ? (
         movieFile.type === "hls" ? (
           <VideoPlayer m3u8Url={movieFile?.file} subtitles={movie.subtitles} />
