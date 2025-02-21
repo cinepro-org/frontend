@@ -5,6 +5,9 @@ import { fetchMovie } from "../services/apiClient";
 import VideoPlayer from "../components/VideoPlayer";
 import "../styles/WatchMovie.css";
 
+
+{/*TODO: Add file (provider) selection, use regex to get url root for naming*/ }
+
 function WatchMovie() {
   const { movieId } = useParams();
 
@@ -25,21 +28,30 @@ function WatchMovie() {
 
   useEffect(() => {
     if (movie) {
+      setMovieFile(movie.files[0]);
+
+      // used for movie provider selection, removed temporarly
+      /*
       if (selectedProvider === null) {
         setSelectedProvider(
-          movie.sources.find((source) => source.files[0].type === "hls")?.provider
+          movie.files.find((source) => source.files[0].type === "hls")?.provider
         );
       }
+        */
     }
+
   }, [movie]);
 
+  // used for movie provider, removed temporarly
+  /*
   useEffect(() => {
     if (selectedProvider) {
       setMovieFile(
-        movie.sources.find((source) => source.provider === selectedProvider)?.files[0]
+        movie?.files[0]
       );
     }
   }, [selectedProvider, movie]);
+  */
 
   return (
     <div className={`watch-movie-container ${movieFile ? "watch-movie-container-notLoading" : ""}`}>
@@ -53,9 +65,11 @@ function WatchMovie() {
         <h1>Loading...</h1>
       )}
 
+      {/* used for movie provider selection, removed temporarly */}
+      {/*
       {movie && (
         <div className="provider-selection">
-          {movie.sources.map((source, index) => (
+          {movie.files.map((source, index) => (
             <button
               key={index}
               className={`provider-button ${source.provider === selectedProvider ? "selected" : ""
@@ -67,6 +81,7 @@ function WatchMovie() {
           ))}
         </div>
       )}
+        */}
     </div>
   );
 }
