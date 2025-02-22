@@ -1,81 +1,48 @@
-import React, { useEffect, useState } from "react";
-import Hls from "hls.js";
 import PropTypes from "prop-types";
-import "../styles/VideoPlayer.css";
+import "@vidstack/react/player/styles/default/theme.css";
+import "@vidstack/react/player/styles/default/layouts/video.css";
+import { MediaPlayer, MediaProvider, Track } from "@vidstack/react";
+import { defaultLayoutIcons, DefaultVideoLayout } from "@vidstack/react/player/layouts/default";
+import { reverseLanguageMap } from "../utils/languages";
 
-function VideoPlayer({ m3u8Url, subtitles, providers }) {
-    const videoRef = React.useRef(null);
-    const [showMenu, setShowMenu] = useState(false);
-    const [currentProvider, setCurrentProvider] = useState(m3u8Url);
+function VideoPlayer({ files, subtitles }) {
+    // Sort subtitles by label alphabetically
+    const sortedSubtitles = (subtitles || []).filter(subtitle => subtitle).sort((a, b) => reverseLanguageMap[a.lang].localeCompare(reverseLanguageMap[b.lang]));
 
-    useEffect(() => {
-        if (Hls.isSupported()) {
-            const hls = new Hls();
-            hls.loadSource(currentProvider);
-            hls.attachMedia(videoRef.current);
-        } else if (videoRef.current.canPlayType("application/vnd.apple.mpegurl")) {
-            videoRef.current.src = currentProvider;
-        }
-    }, [currentProvider]);
+    // check if it is loaded with ?autoplay=true
+    const urlParams = new URLSearchParams(window.location.search);
+    const autoplay = urlParams.get("autoplay") === "true";
 
     return (
         <div className="video-container">
-            {/* Video Player */}
-            <video controls controlsList="nofullscreen" ref={videoRef} className="video-player">
-                {subtitles &&
-                    subtitles.map((subtitle, index) => (
-                        <track
-                            key={index}
-                            label={subtitle.label}
-                            kind="subtitles"
-                            srcLang={subtitle.lang}
-                            src={subtitle.url}
-                            default={index === 0}
-                        />
-                    ))}
-            </video>
-
-            {/* Overlay Controls */}
-            <div className="custom-controls">
-                {/* Provider Selection Button */}
-                <button className="provider-btn" onClick={() => setShowMenu(!showMenu)}>
-                    📡 Providers
-                </button>
-
-                {/* Provider Selection Menu */}
-                {showMenu && (
-                    <div className="provider-menu">
-                        {providers.map((provider, index) => (
-                            <button
-                                key={index}
-                                className="provider-option"
-                                onClick={() => {
-                                    setCurrentProvider(provider.url);
-                                    setShowMenu(false);
-                                }}
-                            >
-                                {provider.name}
-                            </button>
-                        ))}
-                    </div>
-                )}
-            </div>
+            {/* Vidstack Video Player */}
+            <MediaPlayer title="Video Player" src={files[files.length - 1].file} playsInline crossOrigin autoPlay={autoplay}>
+                <MediaProvider />
+                <DefaultVideoLayout icons={defaultLayoutIcons} />
+                {
+                    sortedSubtitles.map((subtitle, index) => (
+                        <Track key={`${subtitle.lang}-${index}`} kind="subtitles" src={subtitle.url} lang={subtitle.lang} label={reverseLanguageMap[subtitle.lang]} />
+                    ))
+                }
+            </MediaPlayer>
         </div>
     );
 }
 
 VideoPlayer.propTypes = {
-    m3u8Url: PropTypes.string.isRequired,
+    files: PropTypes.arrayOf(
+        PropTypes.shape({
+            file: PropTypes.string.isRequired,
+            type: PropTypes.string.isRequired,
+            quality: PropTypes.string,
+            lang: PropTypes.string,
+            headers: PropTypes.object,
+        })
+    ).isRequired,
     subtitles: PropTypes.arrayOf(
         PropTypes.shape({
             label: PropTypes.string.isRequired,
             lang: PropTypes.string.isRequired,
-            url: PropTypes.string.isRequired,
-        })
-    ).isRequired,
-    providers: PropTypes.arrayOf(
-        PropTypes.shape({
-            name: PropTypes.string.isRequired,
             url: PropTypes.string.isRequired,
         })
     ).isRequired,
