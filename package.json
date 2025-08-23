@@ -10,13 +10,20 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@tailwindcss/vite": "^4.1.12",
     "@vidstack/react": "^1.12.13",
+    "artplayer": "^5.2.5",
+    "artplayer-plugin-hls-control": "^1.0.1",
     "dotenv": "^16.4.7",
+    "embla-carousel-react": "^8.6.0",
+    "framer-motion": "^12.23.12",
     "hls.js": "^1.5.20",
+    "lucide-react": "^0.541.0",
     "prop-types": "^15.8.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-router-dom": "^6.29.0"
+    "react-router-dom": "^6.29.0",
+    "tailwindcss": "^4.1.12"
   },
   "devDependencies": {
     "@eslint/js": "^9.19.0",

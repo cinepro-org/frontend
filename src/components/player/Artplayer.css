@@ -1,0 +1,34 @@
+.artplayercontainer{
+    height: 100vh;
+    width: 100vw;
+    background: var(--background-main);
+    
+}
+.art-settings{
+    height: max-content !important;
+    border-radius: 20px !important;
+    width: 240px !important;
+    
+    bottom: 70px !important;
+    background-color: transparent !important;
+}
+
+.art-setting-item{
+    height: 60px !important;
+    line-height: 50px;
+    font-size: 12px;
+    padding: 10px 5px !important;
+    padding-left: 15px !important;
+    cursor: pointer;
+}
+
+.art-setting-item-left{
+    gap: 10px !important;
+    cursor: pointer;
+}
+.art-icon{
+    background: rgba(255, 255, 255, 0.082);
+    border-radius: 50%;
+   
+   
+}

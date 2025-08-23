@@ -1,9 +1,13 @@
 // src/services/apiClient.js
-const API_URL = import.meta.env.VITE_API_URL;
+
+import apiConfig from "./apiConfig";
+const API_URL = apiConfig.baseUrl;
+const ApiKey = apiConfig.apiKey;
+
 
 const fetchData = async (url) => {
     try {
-        const response = await fetch(url);
+        const response = await fetch(`${url}?api_key=${ApiKey}`);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -21,6 +25,11 @@ const fetchMovie = async (id) => {
     return fetchData(movieUrl);
 };
 
+const fetchTrending = async (param, time) => {
+    const trendingUrl = `${API_URL}/trending/${param}/${time}`;
+    return fetchData(trendingUrl);
+};
+
 const fetchSeries = async (id, season, episode) => {
     if (/\D/.test(id) || /\D/.test(season) || /\D/.test(episode)) {
         throw new Error("Invalid series id, season, or episode");
@@ -29,4 +38,4 @@ const fetchSeries = async (id, season, episode) => {
     return fetchData(seriesUrl);
 };
 
-export { fetchMovie, fetchSeries };
+export { fetchMovie, fetchSeries , fetchTrending};

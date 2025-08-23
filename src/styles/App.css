@@ -1,7 +1,7 @@
 body {
     margin: 0;
     font-family: "Arial", sans-serif;
-    background: #f5f7fa;
+    background: #000000;
     color: #333;
   }
   
@@ -26,20 +26,22 @@ body {
   }
   
   input[type="text"] {
-    padding: 0.5rem;
+    padding: 0.7rem 5rem !important;
+    text-align: start !important;
     font-size: 1rem;
+    border: none !important;
+    min-width: 450px !important;
+    border-radius: 30px  !important;
     margin-bottom: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
   }
   
   button {
-    padding: 0.5rem 1rem;
-    font-size: 1rem;
-    color: #fff;
-    background-color: #007bff;
+    padding: 0.35rem 1.2rem !important;
+    font-size: .85rem !important;
+    color: #000000 !important;
+    background-color: #f1f1f1 !important;
     border: none;
-    border-radius: 4px;
+    border-radius: 20px  !important;
     cursor: pointer;
   }
   
