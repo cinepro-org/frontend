@@ -1,5 +1,5 @@
 > [!important]
-> This frontend does not really work. it has only been made for testing purposes (i mean it works i think but it is not usable on a large scale.)
+> Change this Readme file before release that it matches the actual project.
 
 # CinePro Frontend
 
