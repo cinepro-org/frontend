@@ -12,7 +12,7 @@
   "dependencies": {
     "@vidstack/react": "^1.12.13",
     "dotenv": "^16.4.7",
-    "hls.js": "^1.5.20",
+    "hls.js": "^1.6.10",
     "prop-types": "^15.8.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

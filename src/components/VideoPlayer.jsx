@@ -7,6 +7,25 @@ import { defaultLayoutIcons, DefaultVideoLayout } from "@vidstack/react/player/l
 import { reverseLanguageMap } from "../utils/languages";
 
 function VideoPlayer({ files, subtitles }) {
+    // Helper to map file.type to MIME type
+    function getMimeType(fileType) {
+        switch (fileType) {
+            case "hls":
+                return "application/x-mpegurl";
+            case "mp4":
+                return "video/mp4";
+            case "webm":
+                return "video/webm";
+            case "ogg":
+                return "video/ogg";
+            case "embed":
+                return "text/html";
+            default:
+                return "application/x-mpegurl";
+        }
+    }
+    // Ensure files is always an array, memoized for stable reference
+    const safeFiles = useMemo(() => Array.isArray(files) ? files : [], [files]);
     // Sort subtitles by label alphabetically
     const sortedSubtitles = useMemo(() => {
         return (subtitles || []).filter(subtitle => subtitle).sort((a, b) => {
@@ -21,60 +40,70 @@ function VideoPlayer({ files, subtitles }) {
     const autoplay = urlParams.get("autoplay") === "true";
 
     // Find the first file with type 'hls'
-    const hlsFile = files.find(file => file.type === 'hls');
+    const hlsFile = safeFiles.find(file => file.type === 'hls');
 
     // State to keep track of the selected file
-    const [selectedFile, setSelectedFile] = useState(hlsFile || files[files.length - 1]);
+    const [selectedFile, setSelectedFile] = useState(hlsFile || safeFiles[safeFiles.length - 1]);
 
     useEffect(() => {
         if (hlsFile) {
             setSelectedFile(hlsFile);
         } else {
-            setSelectedFile(files[files.length - 1]);
+            setSelectedFile(safeFiles[safeFiles.length - 1]);
         }
-    }, [files, hlsFile]);
+    }, [files, hlsFile, safeFiles]);
 
     return (
         <div className="video-container">
             {/* Provider Selection Menu */}
-            <div className="provider-menu">
-                <h3>Select Provider</h3>
-                {files.map((file, index) => (
-                    <div key={index}>
-                        <input
-                            type="radio"
-                            id={`provider-${index}`}
-                            name="provider"
-                            value={file.file}
-                            checked={selectedFile.file === file.file}
-                            onChange={() => setSelectedFile(file)}
-                        />
-                        <label htmlFor={`provider-${index}`}>{file.type} - {file.quality}</label>
-                        {file.type === 'direct' && (
-                            <a href={file.file} download className="download-button">
-                                Download
-                            </a>
-                        )}
-                    </div>
-                ))}
-            </div>
+            {selectedFile ? (
+                <div className="provider-menu">
+                    <h3>Select Provider</h3>
+                    {safeFiles.map((file, index) => (
+                        <div key={index}>
+                            <input
+                                type="radio"
+                                id={`provider-${index}`}
+                                name="provider"
+                                value={file.file}
+                                checked={selectedFile.file === file.file}
+                                onChange={() => setSelectedFile(file)}
+                            />
+                            <label htmlFor={`provider-${index}`}>Source {index} ({file.type})</label>
+                        </div>
+                    ))}
+                </div>
+            ) : (
+                <div className="provider-menu"><h3>No video file available</h3></div>
+            )}
 
             {/* Vidstack Video Player */}
-            <MediaPlayer title="Video Player" src={selectedFile.file} type={selectedFile.type} playsInline crossOrigin autoPlay={autoplay}>
-                <MediaProvider />
-                <DefaultVideoLayout icons={defaultLayoutIcons} />
-                {
-                    sortedSubtitles.map((subtitle, index) => (
-                        <Track
-                            key={`${subtitle.lang}-${index}`}
-                            kind="subtitles"
-                            src={subtitle.url}
-                            srcLang={subtitle.lang}
-                            label={`${reverseLanguageMap[subtitle.lang]} - ${index}`}
-                        />
-                    ))
-                }
-            </MediaPlayer>
+            {selectedFile && (
+                <MediaPlayer
+                    title="Video Player"
+                    src={{
+                        src: selectedFile.file,
+                        type: getMimeType(selectedFile.type)
+                    }}
+                    playsInline
+                    crossOrigin
+                    autoPlay={autoplay}
+                >
+                    <MediaProvider />
+                    <DefaultVideoLayout icons={defaultLayoutIcons} />
+                    {
+                        sortedSubtitles.map((subtitle, index) => (
+                            <Track
+                                key={`${subtitle.lang}-${index}`}
+                                kind="subtitles"
+                                src={subtitle.url}
+                                srcLang={subtitle.lang}
+                                label={`${reverseLanguageMap[subtitle.lang]} - ${index}`}
+                            />
+                        ))
+                    }
+                </MediaPlayer>
+            )}
         </div>
     );
 }
@@ -84,16 +113,14 @@ VideoPlayer.propTypes = {
         PropTypes.shape({
             file: PropTypes.string.isRequired,
             type: PropTypes.string.isRequired,
-            quality: PropTypes.string,
             lang: PropTypes.string,
-            headers: PropTypes.object,
         })
     ).isRequired,
     subtitles: PropTypes.arrayOf(
         PropTypes.shape({
-            label: PropTypes.string.isRequired,
-            lang: PropTypes.string.isRequired,
             url: PropTypes.string.isRequired,
+            lang: PropTypes.string.isRequired,
+            type: PropTypes.string,
         })
     ).isRequired,
 };

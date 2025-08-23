@@ -30,7 +30,7 @@ function WatchMovie() {
   return (
     <div className={`watch-movie-container ${movie?.files ? "watch-movie-container-notLoading" : ""}`}>
       {movie?.files ? (
-        <VideoPlayer files={movie.files} subtitles={movie.subtitles} />
+        <VideoPlayer files={files} subtitles={movie.subtitles} />
       ) : (
         <h1>Loading...</h1>
       )}
