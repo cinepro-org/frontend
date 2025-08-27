@@ -9,13 +9,15 @@ import { ToggleGroup, ToggleGroupItem } from "../components/togglegroup/ToggleGr
 const DEFAULT_MOVIE_ID = "786892";
 const DEFAULT_SHOW_ID = "94605";
 const DEFAULT_ANIME_ID = "12234";
-const DEFAULT_SHOW_EPISODE = 101; // S1E1
+const DEFAULT_SHOW_SEASON = 1; // S1
+const DEFAULT_SHOW_EPISODE = 1; // E1
 const DEFAULT_ANIME_EPISODE = 101; // S1E1
 const DEFAULT_ANIME_DUB = true;
 
 function HomePage() {
   const [testMovieId, setTestMovieId] = useState("");
   const [testShowId, setTestShowId] = useState("");
+  const [testSeasonNum, setTestSeasonNum] = useState("");
   const [testEpisodeNum, setTestEpisodeNum] = useState("");
   const [testAnimeDub, setTestAnimeDub] = useState(false);
   const [testPlayerType, setTestPlayerType] = useState("vidstack");
@@ -59,14 +61,15 @@ function HomePage() {
 
 
     let path = "";
-    let id, episode;
+    let id, season, episode;
     if (contentType === "movie") {
       id = testMovieId || DEFAULT_MOVIE_ID;
       path = `/movie/${id}?${queryParams.toString()}`;
     } else if (contentType === "series") {
       id = testShowId || DEFAULT_SHOW_ID;
       episode = testEpisodeNum || DEFAULT_SHOW_EPISODE;
-      path = `/tv/${id}/${episode}?${queryParams.toString()}`;
+      season = testSeasonNum || DEFAULT_SHOW_SEASON;
+      path = `/tv/${id}/${season}/${episode}?${queryParams.toString()}`;
     } else if (contentType === "anime") {
       id = testShowId || DEFAULT_ANIME_ID;
       episode = testEpisodeNum || DEFAULT_ANIME_EPISODE;
@@ -138,7 +141,7 @@ function HomePage() {
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [testMovieId, testShowId, testEpisodeNum, testPlayerType, testTheme, testAutoplay, testShowTitle, testShowPoster, testAnimeDub]);
+  }, [testMovieId, testShowId, testEpisodeNum,testSeasonNum, testPlayerType, testTheme, testAutoplay, testShowTitle, testShowPoster, testAnimeDub]);
 
   const handleCopyLink = () => {
     if (generatedLink) {
