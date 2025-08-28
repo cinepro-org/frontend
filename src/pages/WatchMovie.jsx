@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useLocation } from "react-router-dom";
-import { fetchMovie, fetchTmdbDetails } from "../services/apiClient"; // Assuming fetchTmdbDetails is now available
+import { fetchMovie, fetchTmdbDetails , fetchSeries } from "../services/apiClient"; // Assuming fetchTmdbDetails is now available
 import VideoPlayer from "../components/vidstackplayer/VideoPlayer";
 import ArtPlayer from "../components/artplayer/ArtPlayer";
 import { Link } from "react-router-dom";
@@ -25,13 +25,28 @@ function WatchMovie() {
   const showPosterParam = queryParams.get("poster") === "true";
 
   useEffect(() => {
+
+    const finalTheme = theme.startsWith("#") ? theme : `#${theme}`;
+    document.documentElement.style.setProperty("--theme-color", finalTheme);
+  }, [theme]);
+
+  useEffect(() => {
     const getBackendMovieDetails = async () => {
       setLoadingBackend(true);
+      if(!id) return
+
       if (id) {
         try {
-          const data = await fetchMovie(id);
-          setMovie(data);
-          setMovieFiles(data.files);
+          if (season && episode) {
+            const data = await fetchSeries(id, season, episode);
+            setMovie(data);
+            setMovieFiles(data.files);
+          }else{
+            const data = await fetchMovie(id);
+            setMovie(data);
+            setMovieFiles(data.files);
+          }
+          
         } catch (error) {
           console.error("Error fetching backend movie details:", error);
           setMovie(null);
@@ -45,7 +60,7 @@ function WatchMovie() {
     };
 
     getBackendMovieDetails();
-  }, [id]);
+  }, [id , season, episode]);
 
   useEffect(() => {
     const getTmdbDetails = async () => {
@@ -73,9 +88,9 @@ function WatchMovie() {
     getTmdbDetails();
   }, [id , season, episode ]);
 
-  
+  console.log('tv', id , season, episode, tmdbDetails);
 
-  const playerTitle = showTitleParam && tmdbDetails ? tmdbDetails.title : '';
+  const playerTitle = showTitleParam && tmdbDetails ? tmdbDetails.title || tmdbDetails.name : '';
   const posterUrl = showPosterParam && tmdbDetails?.backdrop_path ? `https://image.tmdb.org/t/p/original${tmdbDetails.backdrop_path}` : '';
 
   const playerSettingsProps = {

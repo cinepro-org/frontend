@@ -1,4 +1,4 @@
-import { useEffect, useRef, useMemo, useCallback } from "react";
+import { useEffect, useRef, useMemo, useCallback, useState } from "react";
 import Artplayer from "artplayer";
 import Hls from "hls.js";
 import artplayerPluginHlsControl from "artplayer-plugin-hls-control";
@@ -16,20 +16,23 @@ const debounce = (func, delay) => {
     };
 };
 
-export default function ArtPlayer({ files, subtitles, ...playerSettingsProps }) {
+export default function ArtPlayer({ files, subtitles, id, season, episode, title, poster, backdrop, ...playerSettingsProps }) {
     const artRef = useRef(null);
-    const playerInstanceRef = useRef(null); // Renamed to avoid confusion with `playerRef` from Vidstack example
+    const playerInstanceRef = useRef(null);
     const hlsRef = useRef(null);
     const navigate = useNavigate();
 
-    // Use memoized values for consistent access within effects
-    const currentContentId = playerSettingsProps.id;
-    const currentContentType = playerSettingsProps.season && playerSettingsProps.episode ? "series" : "movie";
-    const currentSeasonNumber = playerSettingsProps.season;
-    const currentEpisodeNumber = playerSettingsProps.episode;
-    const currentTitle = playerSettingsProps.title;
-    const currentPoster = playerSettingsProps.poster;
-    const currentBackdrop = playerSettingsProps.backdrop; // Assuming backdrop from props
+    // State to manage the current file index for fallback
+    const [currentFileIndex, setCurrentFileIndex] = useState(0);
+
+    // Memoized values for consistent access within effects
+    const currentContentId = id;
+    const currentContentType = season && episode ? "series" : "movie";
+    const currentSeasonNumber = season;
+    const currentEpisodeNumber = episode;
+    const currentTitle = title;
+    const currentPoster = poster;
+    const currentBackdrop = backdrop;
 
     const getMimeType = (fileType) => {
         switch (fileType) {
@@ -37,7 +40,7 @@ export default function ArtPlayer({ files, subtitles, ...playerSettingsProps }) 
             case "mp4": return "mp4";
             case "webm": return "webm";
             case "ogg": return "ogg";
-            case "embed": return "mp4";
+            case "embed": return "mp4"; // Assuming embed also uses mp4 or similar direct playback
             default: return "m3u8";
         }
     };
@@ -118,28 +121,58 @@ export default function ArtPlayer({ files, subtitles, ...playerSettingsProps }) 
 
     const debouncedSaveProgress = useMemo(() => debounce(saveProgressToLocalStorage, 5000), [saveProgressToLocalStorage]);
 
-    useEffect(() => {
-        // Prevent creating a new instance on every render or if player is already initialized
-        if (playerInstanceRef.current) {
-            // If contentId, season, episode changes, destroy and re-initialize for new content
-            const isNewContent =
-                playerInstanceRef.current.option.id !== currentContentId ||
-                playerInstanceRef.current.option.season !== currentSeasonNumber ||
-                playerInstanceRef.current.option.episode !== currentEpisodeNumber;
-
-            if (isNewContent) {
-                playerInstanceRef.current.destroy(false);
-                playerInstanceRef.current = null; // Mark for re-initialization
-            } else {
-                return; // Content is the same, no need to re-initialize
-            }
+    // Function to try the next available source URL
+    const tryNextSource = useCallback(() => {
+        if (currentFileIndex < files.length - 1) {
+            const nextIndex = currentFileIndex + 1;
+            console.warn(`HLS error. Attempting to switch to next source: Source ${nextIndex + 1}`);
+            setCurrentFileIndex(nextIndex); // This will trigger a re-render and re-initialization
+        } else {
+            console.error("All available sources failed to load.");
+            playerInstanceRef.current.notice.show = "All sources failed to load. Please try again later.";
         }
+    }, [files, currentFileIndex]);
 
-        if (!files || files.length === 0 || !currentContentId) {
+    useEffect(() => {
+        // Only proceed if artRef.current is available
+        if (!artRef.current) {
             return;
         }
 
-        const defaultFile = files.find(f => f.default) || files[0];
+        // Prevent creating a new instance on every render or if player is already initialized
+        // if contentId, season, episode, or currentFileIndex changes, destroy and re-initialize for new content
+        const isNewContent =
+            playerInstanceRef.current && (
+            playerInstanceRef.current.option.id !== currentContentId ||
+            playerInstanceRef.current.option.season !== currentSeasonNumber ||
+            playerInstanceRef.current.option.episode !== currentEpisodeNumber ||
+            playerInstanceRef.current.option.currentFileIndex !== currentFileIndex // Check file index for re-initialization
+        );
+
+        if (playerInstanceRef.current && !isNewContent) {
+            return; // Content and source are the same, no need to re-initialize
+        }
+
+        if (playerInstanceRef.current && isNewContent) {
+            playerInstanceRef.current.destroy(false);
+            playerInstanceRef.current = null; // Mark for re-initialization
+        }
+
+        if (!files || files.length === 0 || !currentContentId) {
+            if (artRef.current) {
+                artRef.current.innerHTML = '<div style="display: flex; justify-content: center; align-items: center; height: 100%; color: white;">No media files available.</div>';
+            }
+            return;
+        }
+
+        // Use the file at the currentFileIndex
+        const defaultFile = files[currentFileIndex] || files[0];
+        if (!defaultFile) {
+            if (artRef.current) {
+                artRef.current.innerHTML = '<div style="display: flex; justify-content: center; align-items: center; height: 100%; color: white;">No playable source found.</div>';
+            }
+            return;
+        }
 
         const getSubtitleSettings = () => {
             if (!sortedSubtitles || sortedSubtitles.length === 0) return [];
@@ -185,15 +218,19 @@ export default function ArtPlayer({ files, subtitles, ...playerSettingsProps }) 
             return [
                 {
                     html: 'Sources',
-                    tooltip: 'Source 1',
+                    tooltip: `Source ${currentFileIndex + 1}`, // Show current source
                     icon: '<svg width="22px" height="22px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M12 16.5C14.4853 16.5 16.5 14.4853 16.5 12C16.5 9.51472 14.4853 7.5 12 7.5C9.51472 7.5 7.5 9.51472 7.5 12C7.5 14.4853 9.51472 16.5 12 16.5Z" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M2 12H7" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M17 12H22" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>',
                     selector: files.map((f, index) => ({
                         html: `Source ${index + 1}`,
                         url: f.file,
-                        default: f.default || false,
+                        default: index === currentFileIndex, // Mark the current active source
+                        index: index, // Add index for easy reference
                     })),
                     onSelect: function (item) {
-                        playerInstanceRef.current.switchUrl(item.url);
+                        // Manually switch URL, which will re-trigger the useEffect if index changes
+                        // It's crucial to set the currentFileIndex here to make sure the state is in sync
+                        // and potential future HLS errors will pick up from the correct next source.
+                        setCurrentFileIndex(item.index);
                         return item.html;
                     },
                 },
@@ -216,24 +253,24 @@ export default function ArtPlayer({ files, subtitles, ...playerSettingsProps }) 
             fullscreenWeb: false,
             miniProgressBar: true,
             playsInline: true,
-            theme: playerSettingsProps.theme ? `#${playerSettingsProps.theme}` : '#ff4d6d', // Use default theme if not provided
+            theme: playerSettingsProps.theme ? `#${playerSettingsProps.theme}` : '#ff4d6d',
             poster: currentPoster || '',
-            backdrop: playerSettingsProps.showPoster || false, // Use showPoster from props
+            backdrop: playerSettingsProps.showPoster || false,
             subtitle: {
                 default: true,
                 url: sortedSubtitles && sortedSubtitles.length > 0 ? sortedSubtitles[0].url : '',
-                type: 'srt', // Assuming srt for now, adjust if multiple types are needed
+                type: 'srt',
                 offset: -1.5,
                 style: {
                     color: playerSettingsProps.subtitleColor || '#ffffffff',
                     fontSize: playerSettingsProps.subtitleFontSize ? `${playerSettingsProps.subtitleFontSize}px` : '20px',
-                    // subtitleOpacity needs custom handling or direct CSS via theme
                 },
                 encoding: 'utf-8',
             },
-            id: currentContentId, // Store these props in options for access
+            id: currentContentId,
             season: currentSeasonNumber,
             episode: currentEpisodeNumber,
+            currentFileIndex: currentFileIndex, // Store for re-initialization check
             plugins: [
                 artplayerPluginHlsControl({
                     quality: {
@@ -256,24 +293,20 @@ export default function ArtPlayer({ files, subtitles, ...playerSettingsProps }) 
                 {
                     position: 'left',
                     html: `
-                        <div style="display: flex; align-items: center; gap: 11px; margin-right: 6px; background-color: rgba(255, 255, 255, 0.082); padding: 10px 15px; border-radius: 20px;">
-                            <svg width="16px" height="16px" viewBox="-5.5 0 26 26" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns" fill="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <title>chevron-left</title> <desc>Created with Sketch Beta.</desc> <defs> </defs> <g id="Page-1" stroke-width="0.00026000000000000003" fill="none" fill-rule="evenodd" sketch:type="MSPage"> <g id="Icon-Set-Filled" sketch:type="MSLayerGroup" transform="translate(-423.000000, -1196.000000)" fill="#ffffff"> <path d="M428.115,1209 L437.371,1200.6 C438.202,1199.77 438.202,1198.43 437.371,1197.6 C436.541,1196.76 435.194,1196.76 434.363,1197.6 L423.596,1207.36 C423.146,1207.81 422.948,1208.41 422.985,1209 C422.948,1209.59 423.146,1210.19 423.596,1210.64 L434.363,1220.4 C435.194,1221.24 436.541,1221.24 437.371,1220.4 C438.202,1219.57 438.202,1218.23 437.371,1217.4 L428.115,1209" id="chevron-left" sketch:type="MSShapeGroup"> </path> </g> </g> </g></svg>
-                            <p style="text-transform: capitalize; margin: 0; font-size: 14.2px">${currentTitle}</p>
-                            ${(currentSeasonNumber && currentEpisodeNumber) ? `
-                            <p style="text-transform: capitalize; margin: 0; font-size: 14.2px">S${currentSeasonNumber}</p>
-                            <svg width="14px" height="14px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#ffffff"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M12 9.5C13.3807 9.5 14.5 10.6193 14.5 12C14.5 13.3807 13.3807 14.5 12 14.5C10.6193 14.5 9.5 13.3807 9.5 12C9.5 10.6193 10.6193 9.5 12 9.5Z" fill="#ffffff"></path> </g></svg>
-                            <p style="text-transform: capitalize; margin: 0; font-size: 14.2px">E${currentEpisodeNumber}</p>
-                            ` : ''}
+                        <div style="display: flex; align-items: center; gap: 5px; margin-right: 6px; background-color: rgba(255, 255, 255, 0.082); padding: 10px 15px; border-radius: 20px;">
+                           <p style="text-transform: capitalize; margin: 0; font-size: 14.2px">${currentTitle}</p>
+                           ${(currentSeasonNumber && currentEpisodeNumber) ? `
+                           <p style="text-transform: capitalize; margin: 0; font-size: 14.2px">S${currentSeasonNumber}</p>
+                           <svg width="14px" height="14px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#ffffff"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M12 9.5C13.3807 9.5 14.5 10.6193 14.5 12C14.5 13.3807 13.3807 14.5 12 14.5C10.6193 14.5 9.5 13.3807 9.5 12C9.5 10.6193 10.6193 9.5 12 9.5Z" fill="#ffffff"></path> </g></svg>
+                           <p style="text-transform: capitalize; margin: 0; font-size: 14.2px">E${currentEpisodeNumber}</p>
+                           ` : ''}
                         </div>
                     `,
                     index: 1,
-                    click: function () {
-                        navigate('/');
-                    },
                 },
             ],
             customType: {
-                m3u8: (video, url, artInstance) => { // Renamed 'art' to 'artInstance'
+                m3u8: (video, url, artInstance) => {
                     if (Hls.isSupported()) {
                         if (hlsRef.current) {
                             hlsRef.current.destroy();
@@ -291,6 +324,35 @@ export default function ArtPlayer({ files, subtitles, ...playerSettingsProps }) 
                             },
                         });
 
+                        hls.on(Hls.Events.ERROR, (event, data) => {
+                            if (data.fatal) {
+                                switch (data.type) {
+                                    case Hls.ErrorTypes.NETWORK_ERROR:
+                                        console.error("HLS Network Error:", data);
+                                        // Attempt to retry or switch source
+                                        if (data.details === Hls.ErrorDetails.MANIFEST_LOAD_ERROR || data.details === Hls.ErrorDetails.FRAG_LOAD_ERROR) {
+                                            tryNextSource();
+                                        }
+                                        break;
+                                    case Hls.ErrorTypes.MEDIA_ERROR:
+                                        console.error("HLS Media Error:", data);
+                                        // Attempt to recover or switch source
+                                        hls.recoverMediaError();
+                                        // If recovery fails or another media error occurs shortly after, try next source
+                                        setTimeout(() => {
+                                            if (hls.media.paused) { // Check if still paused after recovery attempt
+                                                tryNextSource();
+                                            }
+                                        }, 2000); // Give HLS some time to recover
+                                        break;
+                                    default:
+                                        console.error("HLS Fatal Error (other):", data);
+                                        tryNextSource();
+                                        break;
+                                }
+                            }
+                        });
+
                         hls.loadSource(url);
                         hls.attachMedia(video);
                         hlsRef.current = hls;
@@ -306,6 +368,7 @@ export default function ArtPlayer({ files, subtitles, ...playerSettingsProps }) 
                         video.src = url;
                     } else {
                         artInstance.notice.show = "Unsupported format: m3u8";
+                        tryNextSource(); // If HLS isn't supported, try another source type if available
                     }
                 },
             },
@@ -342,6 +405,16 @@ export default function ArtPlayer({ files, subtitles, ...playerSettingsProps }) 
             }
         });
 
+        // General error listener for ArtPlayer
+        art.on('error', (error, type) => {
+            console.error('ArtPlayer general error:', error, 'Type:', type);
+            // This might catch errors not specifically handled by HLS.js,
+            // but HLS.js errors are often more specific and fatal.
+            // Consider if a general fallback is needed here, or if HLS.js errors cover most cases.
+            // For now, HLS.Events.ERROR should be sufficient for HLS streams.
+        });
+
+
         art.on("timeupdate", () => {
             debouncedSaveProgress();
         });
@@ -362,7 +435,22 @@ export default function ArtPlayer({ files, subtitles, ...playerSettingsProps }) 
                 playerInstanceRef.current = null;
             }
         };
-    }, [files, sortedSubtitles, navigate, playerSettingsProps, currentContentId, currentContentType, currentSeasonNumber, currentEpisodeNumber, currentTitle, currentPoster, currentBackdrop, debouncedSaveProgress]);
+    }, [
+        files,
+        sortedSubtitles,
+        navigate,
+        playerSettingsProps,
+        currentContentId,
+        currentContentType,
+        currentSeasonNumber,
+        currentEpisodeNumber,
+        currentTitle,
+        currentPoster,
+        currentBackdrop,
+        debouncedSaveProgress,
+        currentFileIndex, // Add currentFileIndex to dependencies
+        tryNextSource,
+    ]);
 
 
     return (
@@ -390,20 +478,18 @@ ArtPlayer.propTypes = {
             default: PropTypes.bool,
         })
     ).isRequired,
-    // Changed id, season, episode to contentId, contentType, seasonNumber, episodeNumber for consistency
-    contentId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-    contentType: PropTypes.oneOf(['movie', 'series', 'anime']).isRequired,
-    seasonNumber: PropTypes.number,
-    episodeNumber: PropTypes.number,
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+    title: PropTypes.string,
+    poster: PropTypes.string,
+    backdrop: PropTypes.string,
+    season: PropTypes.number,
+    episode: PropTypes.number,
     playerSettingsProps: PropTypes.shape({
         theme: PropTypes.string,
         autoplay: PropTypes.bool,
         showTitle: PropTypes.bool,
-        poster: PropTypes.string,
-        title: PropTypes.string,
-        backdrop: PropTypes.string,
         subtitleColor: PropTypes.string,
         subtitleFontSize: PropTypes.number,
-        showPoster: PropTypes.bool, // Added to reflect usage in backdrop property
+        showPoster: PropTypes.bool,
     }).isRequired,
 };

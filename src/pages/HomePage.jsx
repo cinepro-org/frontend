@@ -11,7 +11,7 @@ const DEFAULT_SHOW_ID = "94605";
 const DEFAULT_ANIME_ID = "12234";
 const DEFAULT_SHOW_SEASON = 1; // S1
 const DEFAULT_SHOW_EPISODE = 1; // E1
-const DEFAULT_ANIME_EPISODE = 101; // S1E1
+const DEFAULT_ANIME_EPISODE = 1; // E1
 const DEFAULT_ANIME_DUB = true;
 
 function HomePage() {
@@ -59,7 +59,6 @@ function HomePage() {
       queryParams.append("dub", testAnimeDub);
     }
 
-
     let path = "";
     let id, season, episode;
     if (contentType === "movie") {
@@ -67,8 +66,8 @@ function HomePage() {
       path = `/movie/${id}?${queryParams.toString()}`;
     } else if (contentType === "series") {
       id = testShowId || DEFAULT_SHOW_ID;
-      episode = testEpisodeNum || DEFAULT_SHOW_EPISODE;
       season = testSeasonNum || DEFAULT_SHOW_SEASON;
+      episode = testEpisodeNum || DEFAULT_SHOW_EPISODE;
       path = `/tv/${id}/${season}/${episode}?${queryParams.toString()}`;
     } else if (contentType === "anime") {
       id = testShowId || DEFAULT_ANIME_ID;
@@ -90,16 +89,19 @@ function HomePage() {
       if (type === 'movie') {
         setTestMovieId(DEFAULT_MOVIE_ID);
         setTestShowId("");
+        setTestSeasonNum("");
         setTestEpisodeNum("");
         setTestAnimeDub(false);
       } else if (type === 'series') {
         setTestMovieId("");
         setTestShowId(DEFAULT_SHOW_ID);
+        setTestSeasonNum(DEFAULT_SHOW_SEASON);
         setTestEpisodeNum(DEFAULT_SHOW_EPISODE);
         setTestAnimeDub(false);
       } else if (type === 'anime') {
         setTestMovieId("");
         setTestShowId(DEFAULT_ANIME_ID);
+        setTestSeasonNum("");
         setTestEpisodeNum(DEFAULT_ANIME_EPISODE);
         setTestAnimeDub(DEFAULT_ANIME_DUB);
       }
@@ -141,7 +143,7 @@ function HomePage() {
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [testMovieId, testShowId, testEpisodeNum,testSeasonNum, testPlayerType, testTheme, testAutoplay, testShowTitle, testShowPoster, testAnimeDub]);
+  }, [testMovieId, testShowId, testSeasonNum, testEpisodeNum, testPlayerType, testTheme, testAutoplay, testShowTitle, testShowPoster, testAnimeDub]);
 
   const handleCopyLink = () => {
     if (generatedLink) {
@@ -166,11 +168,12 @@ function HomePage() {
         <div className="site-top-header">
           <h1 className="site-title">CinePro</h1>
           <div className="social-links">
-            <button>
+            {/* <button>
               <svg width="15px" height="15px" viewBox="0 -28.5 256 256" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" preserveAspectRatio="xMidYMid" fill="#ffffff"><g id="SVGRepo_bgCarrier" strokeWidth="0"></g><g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g><g id="SVGRepo_iconCarrier"> <g> <path d="M216.856339,16.5966031 C200.285002,8.84328665 182.566144,3.2084988 164.041564,0 C161.766523,4.11318106 159.108624,9.64549908 157.276099,14.0464379 C137.583995,11.0849896 118.072967,11.0849896 98.7430163,14.0464379 C96.9108417,9.64549908 94.1925838,4.11318106 91.8971895,0 C73.3526068,3.2084988 55.6133949,8.86399117 39.0420583,16.6376612 C5.61752293,67.146514 -3.4433191,116.400813 1.08711069,164.955721 C23.2560196,181.510915 44.7403634,191.567697 65.8621325,198.148576 C71.0772151,190.971126 75.7283628,183.341335 79.7352139,175.300261 C72.104019,172.400575 64.7949724,168.822202 57.8887866,164.667963 C59.7209612,163.310589 61.5131304,161.891452 63.2445898,160.431257 C105.36741,180.133187 151.134928,180.133187 192.754523,160.431257 C194.506336,161.891452 196.298154,163.310589 198.110326,164.667963 C191.183787,168.842556 183.854737,172.420929 176.223542,175.320965 C180.230393,183.341335 184.861538,190.991831 190.096624,198.16893 C211.238746,191.588051 232.743023,181.531619 254.911949,164.955721 C260.227747,108.668201 245.831087,59.8662432 216.856339,16.5966031 Z M85.4738752,135.09489 C72.8290281,135.09489 62.4592217,123.290155 62.4592217,108.914901 C62.4592217,94.5396472 72.607595,82.7145587 85.4738752,82.7145587 C98.3405064,82.7145587 108.709962,94.5189427 108.488529,108.914901 C108.508531,123.290155 98.3405064,135.09489 85.4738752,135.09489 Z M170.525237,135.09489 C157.88039,135.09489 147.510584,123.290155 147.510584,108.914901 C147.510584,94.5396472 157.658606,82.7145587 170.525237,82.7145587 C183.391518,82.7145587 193.761324,94.5189427 193.539891,108.914901 C193.539891,123.290155 183.391518,135.09489 170.525237,135.09489 Z" fill="#ffffff" fillRule="nonzero"> </path> </g> </g></svg>
             </button>
             <div className="separator"></div>
-            <button>
+             */}
+            <button onClick={() =>{window.open("https://github.com/cinepro-org/", "_blank")}}>
               <svg width="15px" height="15px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" strokeWidth="0"></g><g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M4.0744 2.9938C4.13263 1.96371 4.37869 1.51577 5.08432 1.15606C5.84357 0.768899 7.04106 0.949072 8.45014 1.66261C9.05706 1.97009 9.11886 1.97635 10.1825 1.83998C11.5963 1.65865 13.4164 1.65929 14.7213 1.84164C15.7081 1.97954 15.7729 1.97265 16.3813 1.66453C18.3814 0.651679 19.9605 0.71795 20.5323 1.8387C20.8177 2.39812 20.8707 3.84971 20.6494 5.04695C20.5267 5.71069 20.5397 5.79356 20.8353 6.22912C22.915 9.29385 21.4165 14.2616 17.8528 16.1155C17.5801 16.2574 17.3503 16.3452 17.163 16.4167C16.5879 16.6363 16.4133 16.703 16.6247 17.7138C16.7265 18.2 16.8491 19.4088 16.8973 20.4002C16.9844 22.1922 16.9831 22.2047 16.6688 22.5703C16.241 23.0676 15.6244 23.076 15.2066 22.5902C14.9341 22.2734 14.9075 22.1238 14.9075 20.9015C14.9075 19.0952 14.7095 17.8946 14.2417 16.8658C13.6854 15.6415 14.0978 15.185 15.37 14.9114C17.1383 14.531 18.5194 13.4397 19.2892 11.8146C20.0211 10.2698 20.1314 8.13501 18.8082 6.83668C18.4319 6.3895 18.4057 5.98446 18.6744 4.76309C18.7748 4.3066 18.859 3.71768 18.8615 3.45425C18.8653 3.03823 18.8274 2.97541 18.5719 2.97541C18.4102 2.97541 17.7924 3.21062 17.1992 3.49805L16.2524 3.95695C16.1663 3.99866 16.07 4.0147 15.975 4.0038C13.5675 3.72746 11.2799 3.72319 8.86062 4.00488C8.76526 4.01598 8.66853 3.99994 8.58215 3.95802L7.63585 3.49882C7.04259 3.21087 6.42482 2.97541 6.26317 2.97541C5.88941 2.97541 5.88379 3.25135 6.22447 4.89078C6.43258 5.89203 6.57262 6.11513 5.97101 6.91572C5.06925 8.11576 4.844 9.60592 5.32757 11.1716C5.93704 13.1446 7.4295 14.4775 9.52773 14.9222C10.7926 15.1903 11.1232 15.5401 10.6402 16.9905C10.26 18.1319 10.0196 18.4261 9.46707 18.4261C8.72365 18.4261 8.25796 17.7821 8.51424 17.1082C8.62712 16.8112 8.59354 16.7795 7.89711 16.5255C5.77117 15.7504 4.14514 14.0131 3.40172 11.7223C2.82711 9.95184 3.07994 7.64739 4.00175 6.25453C4.31561 5.78028 4.32047 5.74006 4.174 4.83217C4.09113 4.31822 4.04631 3.49103 4.0744 2.9938Z" fill="#ffffff"></path> <path d="M3.33203 15.9454C3.02568 15.4859 2.40481 15.3617 1.94528 15.6681C1.48576 15.9744 1.36158 16.5953 1.66793 17.0548C1.8941 17.3941 2.16467 17.6728 2.39444 17.9025C2.4368 17.9449 2.47796 17.9858 2.51815 18.0257C2.71062 18.2169 2.88056 18.3857 3.05124 18.5861C3.42875 19.0292 3.80536 19.626 4.0194 20.6962C4.11474 21.1729 4.45739 21.4297 4.64725 21.5419C4.85315 21.6635 5.07812 21.7352 5.26325 21.7819C5.64196 21.8774 6.10169 21.927 6.53799 21.9559C7.01695 21.9877 7.53592 21.998 7.99999 22.0008C8.00033 22.5527 8.44791 23.0001 8.99998 23.0001C9.55227 23.0001 9.99998 22.5524 9.99998 22.0001V21.0001C9.99998 20.4478 9.55227 20.0001 8.99998 20.0001C8.90571 20.0001 8.80372 20.0004 8.69569 20.0008C8.10883 20.0026 7.34388 20.0049 6.67018 19.9603C6.34531 19.9388 6.07825 19.9083 5.88241 19.871C5.58083 18.6871 5.09362 17.8994 4.57373 17.2891C4.34391 17.0194 4.10593 16.7834 3.91236 16.5914C3.87612 16.5555 3.84144 16.5211 3.80865 16.4883C3.5853 16.265 3.4392 16.1062 3.33203 15.9454Z" fill="#ffffff"></path> </g></svg>
             </button>
           </div>
@@ -178,7 +181,9 @@ function HomePage() {
         <div className="nav-links">
           <a href="#player-demo-section" className="nav-link">Player</a>
           <div className="separator"></div>
-          <a href="#docs" className="nav-link">Docs</a>
+          <a href={"https://cinepro.mintlify.app/introduction"} target="_blank" rel="noopener noreferrer" className="nav-link">Docs</a>
+          <div className="separator"></div>
+          <a href="#docs" className="nav-link">Api</a>
           <div className="separator"></div>
           <a href="#faq" className="nav-link">FAQs</a>
         </div>
@@ -196,7 +201,7 @@ function HomePage() {
               <button className="cta-button" onClick={() => document.getElementById('docs').scrollIntoView({ behavior: 'smooth' })}>Get Started </button>
 
               <button className="cta-button" onClick={() => document.getElementById('player-demo-section').scrollIntoView({ behavior: 'smooth' })}>Try the Player</button>
-              <button  className="cta-button" onClick={() => window.open("https://cinepro.mintlify.app/introduction")}>Read The Docs</button>
+              <button className="cta-button" onClick={() => window.open("https://cinepro.mintlify.app/introduction" , "_blank")}>Read The Docs</button>
             </div>
           </div>
         </section>
@@ -216,9 +221,9 @@ function HomePage() {
             <ToggleGroupItem value="series" aria-label="Series Player">
               <MonitorPlay className="h-4 w-4" /> Series Player
             </ToggleGroupItem>
-            <ToggleGroupItem value="anime" aria-label="Anime Player">
+            {/* <ToggleGroupItem value="anime" aria-label="Anime Player">
               <Tv className="h-4 w-4" /> Anime Player
-            </ToggleGroupItem>
+            </ToggleGroupItem> */}
           </ToggleGroup>
 
           <div className="input-row">
@@ -232,35 +237,21 @@ function HomePage() {
             />
             {(contentType === 'series' || contentType === 'anime') && (
               <div className="season-episode-group">
-                <input
-                  type="number"
-                  placeholder="S"
-                  value={testEpisodeNum ? Math.floor(testEpisodeNum / 100) : ''}
-                  onChange={(e) => {
-                    const season = parseInt(e.target.value);
-                    const currentEp = testEpisodeNum ? (testEpisodeNum % 100) : 1;
-                    if (!isNaN(season)) {
-                      setTestEpisodeNum(season * 100 + currentEp);
-                    } else {
-                      setTestEpisodeNum(currentEp);
-                    }
-                  }}
-                  className="se-input"
-                  min="1"
-                />
+                {contentType === 'series' && (
+                  <input
+                    type="number"
+                    placeholder="S"
+                    value={testSeasonNum}
+                    onChange={(e) => setTestSeasonNum(e.target.value)}
+                    className="se-input"
+                    min="1"
+                  />
+                )}
                 <input
                   type="number"
                   placeholder="E"
-                  value={testEpisodeNum ? (testEpisodeNum % 100) : ''}
-                  onChange={(e) => {
-                    const episode = parseInt(e.target.value);
-                    const currentSeason = testEpisodeNum ? Math.floor(testEpisodeNum / 100) : 1;
-                    if (!isNaN(episode)) {
-                      setTestEpisodeNum(currentSeason * 100 + episode);
-                    } else {
-                      setTestEpisodeNum(currentSeason * 100 + 1);
-                    }
-                  }}
+                  value={testEpisodeNum}
+                  onChange={(e) => setTestEpisodeNum(e.target.value)}
                   className="se-input"
                   min="1"
                 />
@@ -280,8 +271,6 @@ function HomePage() {
               </div>
             )}
           </div>
-
-  
 
           <div className="player-and-customization-layout">
             <div className="player-preview-area">
@@ -304,30 +293,29 @@ function HomePage() {
                 </div>
               )}
               <div className="generated-link-bar">
-            <input
-              type="text"
-              value={generatedLink}
-              readOnly
-              className="generated-link-input"
-              placeholder="Generated Player Link"
-            />
-            <button className="copy-link-button" onClick={handleCopyLink} disabled={!generatedLink}>
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-copy"><rect width="14" height="14" x="8" y="8" rx="2" ry="2" /><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" /></svg>
-            </button>
-          </div>
+                <input
+                  type="text"
+                  value={generatedLink}
+                  readOnly
+                  className="generated-link-input"
+                  placeholder="Generated Player Link"
+                />
+                <button className="copy-link-button" onClick={handleCopyLink} disabled={!generatedLink}>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-copy"><rect width="14" height="14" x="8" y="8" rx="2" ry="2" /><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" /></svg>
+                </button>
+              </div>
             </div>
 
             <div className="player-settings-area">
               <h4>Player Settings</h4>
               <div className="player-options-grid">
                 <div className="setting-item">
-                  
                   <div className="setting-label">
-                  <Monitor className="option-icon"/>
-                  <span>Player</span>
-                  <p>select the player type</p>
+                    <Monitor className="option-icon"/>
+                    <span>Player</span>
+                    <p>select the player type</p>
                   </div>
-                  
+
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <button className="dropdown-trigger-button" onClick={() => setIsPlayerTypeDropdownOpen(!isPlayerTypeDropdownOpen)}>
@@ -349,20 +337,19 @@ function HomePage() {
 
                 <label className="setting-item color-setting">
                   <div className="setting-label">
-                  <Palette className="option-icon"/>
-                  <span>Theme</span>
-                  <p>set the player overall color</p>
+                    <Palette className="option-icon"/>
+                    <span>Theme</span>
+                    <p>set the player overall color</p>
                   </div>
-                  
+
                   <div className="separator"></div>
 
-                  
-                   <div className="setting-color">
+                  <div className="setting-color">
                     <input type="color" value={`#${testTheme}`} onChange={handleThemeChange} className="setting-color-input" />
-                  <span className="color-hex">{testTheme}</span>
-             
-                   </div>
-                  </label>
+                    <span className="color-hex">{testTheme}</span>
+
+                  </div>
+                </label>
 
                 <label className="setting-item">
                   <span>Autoplay</span>
@@ -381,7 +368,7 @@ function HomePage() {
                 </label>
 
                 <label className="setting-item">
-                  <span>Show Poster:</span>
+                  <span>Show Poster</span>
                   <label className="switch">
                     <input type="checkbox" checked={testShowPoster} onChange={(e) => setTestShowPoster(e.target.checked)} />
                     <span className="slider round"></span>
@@ -401,14 +388,15 @@ function HomePage() {
           <pre><code>{`<iframe src="${window.location.origin}/movie/786892" frameborder="0" allowfullscreen></iframe>`}</code></pre>
           <h4>Embed Shows</h4>
           <p>ID is required from <a href="https://www.themoviedb.org/" target="_blank" rel="noopener noreferrer" className="doc-link">The Movie Database API</a>. Season and episode number should not be empty.</p>
-          <pre><code>{`${window.location.origin}/tv/{tmdbId}/{seasonEpisodeNumber}`}</code></pre>
+          <pre><code>{`${window.location.origin}/tv/{tmdbId}/{season}/{episode}`}</code></pre>
           <h5>Code Example:</h5>
-          <pre><code>{`<iframe src="${window.location.origin}/tv/94605/101" frameborder="0" allowfullscreen></iframe>`}</code></pre>
-          <h4>Embed Anime</h4>
+          <pre><code>{`<iframe src="${window.location.origin}/tv/94605/1/1" frameborder="0" allowfullscreen></iframe>`}</code></pre>
+          {/* <h4>Embed Anime</h4>
           <p>ID is required from <a href="https://anilist.co/" target="_blank" rel="noopener noreferrer" className="doc-link">Anilist API</a>. ID should not be empty, dub by default is false.</p>
           <pre><code>{`${window.location.origin}/anime/{anilistId}/{episodeNumber}?dub={trueOrFalse}`}</code></pre>
           <h5>Code Example:</h5>
-          <pre><code>{`<iframe src="${window.location.origin}/anime/12234/101?dub=true" frameborder="0" allowfullscreen></iframe>`}</code></pre>
+          <pre><code>{`<iframe src="${window.location.origin}/anime/12234/1?dub=true" frameborder="0" allowfullscreen></iframe>`}</code></pre>
+           */}
           <h4>Player Options</h4>
           <p>Customize the player's behavior and appearance using URL query parameters:</p>
           <div className="player-options-doc-grid">
@@ -508,7 +496,7 @@ function HomePage() {
             </div>
             <div className="faq-item">
               <h5>6. Can I use this API for anime?</h5>
-              <p>Yes, the API supports embedding anime content.</p>
+              <p>No, the API doesnt support embedding anime content yet , but we are working on it</p>
             </div>
           </div>
         </section>
