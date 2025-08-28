@@ -1,7 +1,7 @@
 body {
     margin: 0;
     font-family: "Arial", sans-serif;
-    background: #f5f7fa;
+    background: #000000 !important;
     color: #333;
   }
   
@@ -25,26 +25,22 @@ body {
     align-items: center;
   }
   
-  input[type="text"] {
-    padding: 0.5rem;
-    font-size: 1rem;
-    margin-bottom: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-  }
+ 
   
   button {
     padding: 0.5rem 1rem;
     font-size: 1rem;
     color: #fff;
-    background-color: #007bff;
+    margin: 0.1rem !important;
+    background-color: #ffffff09 !important;
     border: none;
-    border-radius: 4px;
+    /* border-radius: 50% !important; */
+    transition: background-color 0.3s ease;
     cursor: pointer;
   }
   
   button:hover {
-    background-color: #0056b3;
+    background-color: #ffffff2a !important;
   }
   
   a {
