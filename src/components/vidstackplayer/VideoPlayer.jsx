@@ -1,12 +1,12 @@
-
+import  { useMemo, useState, useEffect, useRef, useCallback } from "react";
 import PropTypes from "prop-types";
 import "@vidstack/react/player/styles/default/theme.css";
 import "@vidstack/react/player/styles/default/layouts/video.css";
-import { useMemo, useState, useEffect, useRef, useCallback } from "react";
 import { MediaPlayer, MediaProvider, Track, Poster } from "@vidstack/react";
 import { defaultLayoutIcons, DefaultVideoLayout } from "@vidstack/react/player/layouts/default";
 import { reverseLanguageMap } from "../../utils/languages";
 import "./Videoplayer.css";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger, DropdownMenuLabel, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSeparator } from "../DropdownComponents/DropdownMenu";
 import { ToggleLeft } from "lucide-react";
 
 // Debounce utility function
@@ -21,7 +21,6 @@ const debounce = (func, delay) => {
 
 function VideoPlayer({ files, subtitles, ...playerSettingsProps }) {
   const playerRef = useRef(null);
-  const selectRef = useRef(null);
   const contentId = playerSettingsProps.id;
   const contentType = playerSettingsProps.season && playerSettingsProps.episode ? "series" : "movie";
   const seasonNumber = playerSettingsProps.season;
@@ -59,7 +58,8 @@ function VideoPlayer({ files, subtitles, ...playerSettingsProps }) {
     return safeFiles.map((file, index) => ({
       src: file.file,
       type: getMimeType(file.type),
-      label: file.lang ? `${reverseLanguageMap[file.lang]} (${file.type})` : `Source ${index + 1} (${file.type})`
+      label: file.lang ? `${reverseLanguageMap[file.lang]} (${file.type})` : `Source ${index + 1} (${file.type})`,
+      value: index.toString(),
     }));
   }, [safeFiles]);
 
@@ -71,22 +71,18 @@ function VideoPlayer({ files, subtitles, ...playerSettingsProps }) {
   // --- Load Playback Progress from Local Storage ---
   useEffect(() => {
     if (!contentId) return;
-
     const loadProgress = () => {
       try {
         const storedProgress = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || '{}');
         const contentProgress = storedProgress[contentId];
-
         if (contentProgress && playerRef.current) {
           let watchedTime = 0;
-
           if (contentType === 'movie') {
             watchedTime = contentProgress.progress?.watched || 0;
           } else if (contentType === 'series' || contentType === 'anime') {
             const episodeKey = `s${seasonNumber}e${episodeNumber}`;
             watchedTime = contentProgress.show_progress?.[episodeKey]?.progress?.watched || 0;
           }
-
           if (watchedTime > 0) {
             playerRef.current.currentTime = watchedTime;
           }
@@ -95,60 +91,49 @@ function VideoPlayer({ files, subtitles, ...playerSettingsProps }) {
         console.error("Error loading playback progress from local storage:", error);
       }
     };
-
     // Ensure player is ready before trying to seek
     const onPlayerReady = () => {
       loadProgress();
       playerRef.current.removeEventListener('can-play', onPlayerReady);
     };
-
     if (playerRef.current) {
       playerRef.current.addEventListener('can-play', onPlayerReady);
     }
-
     return () => {
       if (playerRef.current) {
         playerRef.current.removeEventListener('can-play', onPlayerReady);
       }
     };
-
-  }, [contentId, contentType, seasonNumber, episodeNumber ]);
-
+  }, [contentId, contentType, seasonNumber, episodeNumber]);
 
   // --- Save Playback Progress to Local Storage (Debounced) ---
   const saveProgressToLocalStorage = useCallback(() => {
     if (!contentId || !playerRef.current || !playerRef.current.duration || playerRef.current.duration === Infinity) {
       return;
     }
-
     const watched = playerRef.current.currentTime;
     const duration = playerRef.current.duration;
-
     // Only save if content has been watched for a significant amount of time
-    if (watched < 5 || watched >= duration - 5) { // e.g., only save if > 5 seconds watched and not near end
+    if (watched < 5 || watched >= duration - 5) {
       return;
     }
-
     try {
       const storedProgress = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || '{}');
-
       const progressData = {
         id: contentId,
         type: contentType,
         title: playerSettingsProps.title || "Unknown Title",
         poster_path: playerSettingsProps.poster || "",
-        backdrop_path: playerSettingsProps.backdrop || "", // Assuming backdrop_path might come from props
+        backdrop_path: playerSettingsProps.backdrop || "",
         progress: {
           watched: watched,
           duration: duration,
         },
         last_updated: Date.now(),
       };
-
       if (contentType === 'series' || contentType === 'anime') {
         const episodeKey = `s${seasonNumber}e${episodeNumber}`;
         const existingShowProgress = storedProgress[contentId]?.show_progress || {};
-
         progressData.last_season_watched = String(seasonNumber);
         progressData.last_episode_watched = String(episodeNumber);
         progressData.show_progress = {
@@ -163,14 +148,11 @@ function VideoPlayer({ files, subtitles, ...playerSettingsProps }) {
           },
         };
       }
-
       const updatedProgress = {
         ...storedProgress,
         [contentId]: progressData,
       };
-
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updatedProgress));
-      // console.log("Progress saved to local storage:", progressData);
     } catch (error) {
       console.error("Error saving playback progress to local storage:", error);
     }
@@ -182,28 +164,19 @@ function VideoPlayer({ files, subtitles, ...playerSettingsProps }) {
     const player = playerRef.current;
     if (player && contentId) {
       player.addEventListener('time-update', debouncedSaveProgress);
-      // Save final progress when the component unmounts or content changes
       return () => {
         player.removeEventListener('time-update', debouncedSaveProgress);
-        // Ensure one last save on unmount or content change
-        saveProgressToLocalStorage(); // Call non-debounced version for immediate save
+        saveProgressToLocalStorage();
       };
     }
   }, [contentId, debouncedSaveProgress, saveProgressToLocalStorage]);
-
 
   // --- Player UI and error handling ---
   useEffect(() => {
     setCurrentSourceIndex(0);
     setHasFailedAllSources(false);
     setShowSourceSelect(false);
-  }, [files, contentId]); // Reset when files or content ID changes
-
-  useEffect(() => {
-    if (showSourceSelect && selectRef.current) {
-      selectRef.current.focus();
-    }
-  }, [showSourceSelect]);
+  }, [files, contentId]);
 
   const handleMediaError = () => {
     console.warn(`Failed to load source at index ${currentSourceIndex}.`);
@@ -217,11 +190,11 @@ function VideoPlayer({ files, subtitles, ...playerSettingsProps }) {
     }
   };
 
-  const handleSourceChange = (event) => {
-    const selectedIndex = parseInt(event.target.value, 10);
+  const handleDropdownSelect = (value) => {
+    const selectedIndex = parseInt(value, 10);
     setCurrentSourceIndex(selectedIndex);
     setHasFailedAllSources(false);
-    setShowSourceSelect(false);
+    setShowSourceSelect(false); // Close dropdown on selection
   };
 
   const toggleSourceSelect = () => {
@@ -230,49 +203,61 @@ function VideoPlayer({ files, subtitles, ...playerSettingsProps }) {
 
   const handleControlsChange = (isVisible) => {
     setAreControlsVisible(isVisible);
-    if (!isVisible) {
-      setShowSourceSelect(false);
-    }
+    // Removed the line that automatically closes the dropdown when controls disappear
+    // if (!isVisible) {
+    //   setShowSourceSelect(false);
+    // }
   };
-
 
   return (
     <div className="video-container">
       <div className="video-player-wrapper">
         {safeFiles.length > 0 && !hasFailedAllSources ? (
           <>
-            {areControlsVisible && !showSourceSelect && (
-              <button
-                className="source-toggle-button"
-                onClick={toggleSourceSelect}
-                aria-label="Select video source"
-              >
-                <ToggleLeft size={20} />
-              </button>
+            <div className="sourceholder">
+               {areControlsVisible && ( // The dropdown trigger only appears when controls are visible
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    className="source-toggle-button"
+                    onClick={toggleSourceSelect}
+                    aria-label="Select video source"
+                  >
+                    <ToggleLeft size={20} />
+                  </button>
+                </DropdownMenuTrigger>
+                {/* The DropdownMenuContent now stays open until explicitly closed or focus is lost */}
+                {showSourceSelect && (
+                  <DropdownMenuContent
+                    className="sources-dropdown-content"
+                    onBlur={() => setShowSourceSelect(false)}
+                    setIsOpen={setShowSourceSelect}
+                  >
+                    <DropdownMenuLabel>Select a Source</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuRadioGroup
+                      value={currentSourceIndex.toString()}
+                      onValueChange={handleDropdownSelect}
+                    >
+                      {videoSources.map((source, index) => (
+                        <DropdownMenuRadioItem key={index} value={source.value}>
+                          {source.label}
+                        </DropdownMenuRadioItem>
+                      ))}
+                    </DropdownMenuRadioGroup>
+                  </DropdownMenuContent>
+                )}
+              </DropdownMenu>
             )}
-
-            {showSourceSelect && (
-              <div className="sources-container">
-                <select
-                  id="source-select"
-                  className="source-select"
-                  value={currentSourceIndex}
-                  onChange={handleSourceChange}
-                  ref={selectRef}
-                  onBlur={() => setShowSourceSelect(false)}
-                >
-                  {videoSources.map((source, index) => (
-                    <option className="source-option" key={index} value={index}>
-                      {source.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
-
+            </div>
+           
             <MediaPlayer
               ref={playerRef}
-              title={playerSettingsProps.showTitle ? (playerSettingsProps.title || "") : ""}
+              title={
+                seasonNumber && episodeNumber
+                  ? `${playerSettingsProps.title || ""} S${seasonNumber} • E${episodeNumber}`
+                  : playerSettingsProps.title || ""
+              }
               poster={playerSettingsProps.poster || ""}
               src={currentSource}
               playsInline
@@ -282,7 +267,6 @@ function VideoPlayer({ files, subtitles, ...playerSettingsProps }) {
               onControlsChange={handleControlsChange}
               className="video-player"
             >
-
               <MediaProvider>
                 <Poster
                   className="vds-poster"
@@ -290,9 +274,7 @@ function VideoPlayer({ files, subtitles, ...playerSettingsProps }) {
                   alt={playerSettingsProps.showTitle ? (playerSettingsProps.title || "") : ""}
                 />
               </MediaProvider>
-              <DefaultVideoLayout icons={defaultLayoutIcons}>
-
-              </DefaultVideoLayout>
+              <DefaultVideoLayout icons={defaultLayoutIcons} />
               {
                 sortedSubtitles.map((subtitle, index) => (
                   <Track
@@ -309,9 +291,9 @@ function VideoPlayer({ files, subtitles, ...playerSettingsProps }) {
           </>
         ) : (
           <div className="no-video-message">
-            <h1 className="no-video-text">
+            <h3 className="no-video-text">
               {hasFailedAllSources ? "All video sources failed to load." : "No video file available"}
-            </h1>
+            </h3>
           </div>
         )}
       </div>
@@ -336,15 +318,15 @@ VideoPlayer.propTypes = {
   ).isRequired,
   contentId: PropTypes.string.isRequired,
   contentType: PropTypes.oneOf(['movie', 'series', 'anime']).isRequired,
-  seasonNumber: PropTypes.number, // Required for series/anime
-  episodeNumber: PropTypes.number, // Required for series/anime
+  seasonNumber: PropTypes.number,
+  episodeNumber: PropTypes.number,
   playerSettingsProps: PropTypes.shape({
     theme: PropTypes.string,
     autoplay: PropTypes.bool,
     showTitle: PropTypes.bool,
     poster: PropTypes.string,
     title: PropTypes.string,
-    backdrop: PropTypes.string, // Added for consistency with the provided structure
+    backdrop: PropTypes.string,
   }).isRequired,
 };
 

@@ -31,7 +31,7 @@ const fetchSeries = async (id, season, episode) => {
 };
 
 //fetchTmdbDetails
-export const fetchTmdbDetails = async (movieId = '', SN = '', EP = '') => {
+export const fetchTmdbDetails = async (movieId, SN , EP) => {
   const movieType = SN && EP ? 'tv' : 'movie';
   const response = await fetch(`https://api.themoviedb.org/3/${movieType}/${movieId}?api_key=${TMDB_API_KEY}`);
   if (!response.ok) {

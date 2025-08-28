@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
 import { useParams, useLocation } from "react-router-dom";
-import { fetchMovie, fetchTmdbDetails } from "../services/apiClient"; // Assuming fetchTmdbDetails is now available
+import { fetchMovie, fetchTmdbDetails , fetchSeries } from "../services/apiClient"; // Assuming fetchTmdbDetails is now available
 import VideoPlayer from "../components/vidstackplayer/VideoPlayer";
 import ArtPlayer from "../components/artplayer/ArtPlayer";
-
+import { Link } from "react-router-dom";
 import "../styles/WatchMovie.css";
-import { Loader } from "lucide-react";
+import { EyeOff, Loader } from "lucide-react";
 
 function WatchMovie() {
-  const { movieId , SN , EP  } = useParams();
+  const { id , season , episode  } = useParams();
   const location = useLocation();
 
   const [movie, setMovie] = useState(null); // For your backend movie data (files, subtitles)
@@ -20,18 +20,37 @@ function WatchMovie() {
   const queryParams = new URLSearchParams(location.search);
   const playerType = queryParams.get("player") || "vidstack";
   const theme = queryParams.get("theme") || "#dc2626";
+  const subtitleColor = queryParams.get("subtitleColor") || "#ffffff";
+  const nextButton = queryParams.get("nextButton") === "true";
+  const subtitleFontSize = queryParams.get("subtitleFontSize") || 16;
+
   const autoplay = queryParams.get("autoplay") === "true";
   const showTitleParam = queryParams.get("title") === "true";
   const showPosterParam = queryParams.get("poster") === "true";
 
   useEffect(() => {
+
+    const finalTheme = theme.startsWith("#") ? theme : `#${theme}`;
+    document.documentElement.style.setProperty("--theme-color", finalTheme);
+  }, [theme]);
+
+  useEffect(() => {
     const getBackendMovieDetails = async () => {
       setLoadingBackend(true);
-      if (movieId) {
+      if(!id) return
+
+      if (id) {
         try {
-          const data = await fetchMovie(movieId);
-          setMovie(data);
-          setMovieFiles(data.files);
+          if (season && episode) {
+            const data = await fetchSeries(id, season, episode);
+            setMovie(data);
+            setMovieFiles(data.files);
+          }else{
+            const data = await fetchMovie(id);
+            setMovie(data);
+            setMovieFiles(data.files);
+          }
+          
         } catch (error) {
           console.error("Error fetching backend movie details:", error);
           setMovie(null);
@@ -45,18 +64,18 @@ function WatchMovie() {
     };
 
     getBackendMovieDetails();
-  }, [movieId]);
+  }, [id , season, episode]);
 
   useEffect(() => {
     const getTmdbDetails = async () => {
       setLoadingTmdb(true);
-      if (movieId) {
+      if (id) {
         try {
-          if (SN && EP) {
-            const data = await fetchTmdbDetails(movieId, SN, EP);
+          if (season && episode) {
+            const data = await fetchTmdbDetails(id, season, episode);
             setTmdbDetails(data);
           } else {
-            const data = await fetchTmdbDetails(movieId);
+            const data = await fetchTmdbDetails(id);
             setTmdbDetails(data);
           }
         } catch (error) {
@@ -71,11 +90,11 @@ function WatchMovie() {
     };
 
     getTmdbDetails();
-  }, [movieId , SN , EP ]);
+  }, [id , season, episode ]);
 
-  
+  console.log('tv', id , season, episode, tmdbDetails);
 
-  const playerTitle = showTitleParam && tmdbDetails ? tmdbDetails.title : '';
+  const playerTitle = showTitleParam && tmdbDetails ? tmdbDetails.title || tmdbDetails.name : '';
   const posterUrl = showPosterParam && tmdbDetails?.backdrop_path ? `https://image.tmdb.org/t/p/original${tmdbDetails.backdrop_path}` : '';
 
   const playerSettingsProps = {
@@ -85,9 +104,12 @@ function WatchMovie() {
     showPoster: showPosterParam,
     poster: posterUrl,
     title: playerTitle,
-    id: movieId,
-    season: SN,
-    episode: EP
+    id: id,
+    season: season,
+    episode: episode,
+    subtitleColor: subtitleColor,
+    subtitleFontSize: subtitleFontSize,
+    nextButton: nextButton
   };
 
   const isLoading = loadingBackend || loadingTmdb;
@@ -102,7 +124,6 @@ function WatchMovie() {
           <img className="loadingimg" src={posterUrl} alt='' />
           <div className="loading-spinner">
              <Loader className="spinner" stroke="white" size={30}/>
-              <p>Loading</p>
           </div>
           <div className="loading-title">
             {
@@ -113,12 +134,18 @@ function WatchMovie() {
               )
             }
           </div>
-          <div className="randomcorner">
+          {/* <div className="randomcorner">
             <img src="https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3d2V3OXB5Z21zMW5hbjd5cjBlNGtpbHE1ZmpwajhvZDlhbzMwZWJsMyZlcD12MV9zdGlja2Vyc19zZWFyY2gmY3Q9cw/i5eoyLO4iZG6SBAtmD/giphy.gif" alt="" />
-          </div>
+          </div> */}
         </div>
       ) : hasErrors ? (
-        <h1>Error: Movie files unavailable from backend.</h1>
+        <div className="error">
+          <EyeOff className="error-icon" color="#ff4d6d" />
+          <h1>Not Found </h1>
+         <p>We couldn't find the movie you were looking for.</p>
+          <p>Try refreshing the page or go back to the <Link to="/">homepage</Link></p>
+        </div>
+        
       ) : (
         <>
           {playerType === "art" ? (

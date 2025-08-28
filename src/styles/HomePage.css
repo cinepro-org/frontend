@@ -509,11 +509,11 @@
   position: absolute;
   top: 100%;
   right: 0;
-  background-color: #2a2a2a;
+  background-color: #0b0b0b;
   /* backdrop-filter: blur(10px); */
   border-radius: 0.5rem;
   padding: 0.5rem  0;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  /* box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); */
   z-index: 100;
   min-width: 200px;
   text-align: left;
