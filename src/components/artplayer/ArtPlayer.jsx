@@ -16,7 +16,7 @@ const debounce = (func, delay) => {
     };
 };
 
-export default function ArtPlayer({ files, subtitles, id, season, episode, title, poster, backdrop, ...playerSettingsProps }) {
+export default function ArtPlayer({ files, subtitles, ...playerSettingsProps }) {
     const artRef = useRef(null);
     const playerInstanceRef = useRef(null);
     const hlsRef = useRef(null);
@@ -26,13 +26,13 @@ export default function ArtPlayer({ files, subtitles, id, season, episode, title
     const [currentFileIndex, setCurrentFileIndex] = useState(0);
 
     // Memoized values for consistent access within effects
-    const currentContentId = id;
-    const currentContentType = season && episode ? "series" : "movie";
-    const currentSeasonNumber = season;
-    const currentEpisodeNumber = episode;
-    const currentTitle = title;
-    const currentPoster = poster;
-    const currentBackdrop = backdrop;
+    const currentContentId = playerSettingsProps.id;
+    const currentContentType = playerSettingsProps.season && playerSettingsProps.episode ? "series" : "movie";
+    const currentSeasonNumber = playerSettingsProps.season;
+    const currentEpisodeNumber = playerSettingsProps.episode;
+    const currentTitle = playerSettingsProps.title;
+    const currentPoster = playerSettingsProps.poster;
+    const currentBackdrop = playerSettingsProps.backdrop;
 
     const getMimeType = (fileType) => {
         switch (fileType) {
@@ -262,7 +262,7 @@ export default function ArtPlayer({ files, subtitles, id, season, episode, title
                 type: 'srt',
                 offset: -1.5,
                 style: {
-                    color: playerSettingsProps.subtitleColor || '#ffffffff',
+                    color: playerSettingsProps.subtitleColor || '#ffffff',
                     fontSize: playerSettingsProps.subtitleFontSize ? `${playerSettingsProps.subtitleFontSize}px` : '20px',
                 },
                 encoding: 'utf-8',

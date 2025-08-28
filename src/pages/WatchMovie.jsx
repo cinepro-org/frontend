@@ -20,6 +20,10 @@ function WatchMovie() {
   const queryParams = new URLSearchParams(location.search);
   const playerType = queryParams.get("player") || "vidstack";
   const theme = queryParams.get("theme") || "#dc2626";
+  const subtitleColor = queryParams.get("subtitleColor") || "#ffffff";
+  const nextButton = queryParams.get("nextButton") === "true";
+  const subtitleFontSize = queryParams.get("subtitleFontSize") || 16;
+
   const autoplay = queryParams.get("autoplay") === "true";
   const showTitleParam = queryParams.get("title") === "true";
   const showPosterParam = queryParams.get("poster") === "true";
@@ -102,7 +106,10 @@ function WatchMovie() {
     title: playerTitle,
     id: id,
     season: season,
-    episode: episode
+    episode: episode,
+    subtitleColor: subtitleColor,
+    subtitleFontSize: subtitleFontSize,
+    nextButton: nextButton
   };
 
   const isLoading = loadingBackend || loadingTmdb;

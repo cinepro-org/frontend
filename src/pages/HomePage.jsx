@@ -456,7 +456,7 @@ function HomePage() {
               <pre><code>subtitleColor=FFFFFF</code></pre>
             </div>
             <div className="option-item">
-              <strong>subtitleFontSize </strong>
+              <strong>subtitleFontSize</strong>
               <p>Controls the font size of subtitles.</p>
               <pre><code>subtitleFontSize=16</code></pre>
             </div>
