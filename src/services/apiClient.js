@@ -1,5 +1,6 @@
 // src/services/apiClient.js
 const API_URL = import.meta.env.VITE_API_URL;
+const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY; 
 
 const fetchData = async (url) => {
     try {
@@ -27,6 +28,17 @@ const fetchSeries = async (id, season, episode) => {
     }
     const seriesUrl = `${API_URL}/tv/${id}?s=${season}&e=${episode}`;
     return fetchData(seriesUrl);
+};
+
+//fetchTmdbDetails
+export const fetchTmdbDetails = async (movieId, SN , EP) => {
+  const movieType = SN && EP ? 'tv' : 'movie';
+  const response = await fetch(`https://api.themoviedb.org/3/${movieType}/${movieId}?api_key=${TMDB_API_KEY}`);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch TMDB details for movie ID: ${movieId}`);
+  }
+  const data = await response.json();
+  return data;
 };
 
 export { fetchMovie, fetchSeries };

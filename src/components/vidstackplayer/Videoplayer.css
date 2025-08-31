@@ -1,0 +1,308 @@
+
+.video-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  
+  position: relative;
+  overflow: hidden;
+  width: 100vw;
+  height: 100vh;
+  background: #000;
+}
+
+.video-player{
+  max-width: 100%;
+  height: 100vh;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  object-fit: cover;
+  background: #211818
+}
+
+.sources-container {
+  position: absolute;
+  top: 7px;
+  left: 7px;
+  z-index: 2;
+  /* width: 100vw;
+  height: 100vh; */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.source-select{
+    padding: 7px;
+    background: #181818;
+    border: none !important;
+    border-radius: 7px;
+    color: #fff;
+    /* box-shadow: 0 2px 8px rgba(0,0,0,0.3); */
+    max-width: 280px;
+    width: 100%;
+    
+    
+}
+.vds-slider-track{
+    height: 3px !important;
+}
+.vds-slider-track-fill{
+    background: var(--theme-color) !important;
+}
+.source-option{
+    padding: 7px !important;
+    background: #131313;
+    border: none;
+    border-radius: 10px !important;
+    color: #fff;
+    /* box-shadow: 0 2px 8px rgba(0,0,0,0.3); */
+    max-width: 360px;
+    width: 100%;
+}
+.video-player-wrapper{
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+}
+.source-toggle-button{
+    position: absolute;
+    top: -3rem;
+    right: 8.5rem;
+    z-index: 200;
+    padding: 10px;
+    display: flex;
+    max-width: 150px;
+   
+    color: #fff;
+    /* box-shadow: 0 2px 8px rgba(0,0,0,0.3); */
+
+    &:hover{
+        cursor: pointer;
+        scale: 1.1;
+        background: #ffffff30;
+    }
+}
+.sourceholder{
+    position: absolute;
+    top: 3rem;
+    left: 2rem;
+    z-index: 200;
+    padding: 10px;
+    display: flex;
+    max-width: 170px;
+    width: 100%;
+    justify-content: flex-end;
+    align-items: center;
+    /* background: #ffffff18; */
+    border: none;
+    /* border-radius: 50%; */
+    color: #fff;
+    /* box-shadow: 0 2px 8px rgba(0,0,0,0.3); */
+
+    
+    
+}
+
+custom-vds-button{
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: center;
+    align-items: center;
+    padding: 15px !important;
+    
+}
+
+custom-vds-button p{
+    font-size: .7rem !important;
+    
+}
+.vds-menu-item{
+ margin:0px !important;
+ margin-bottom: 5px !important;
+ font-size: .8rem !important;
+ /* border-radius: 15px !important; */
+ padding: 1.2rem .5rem ;
+ /* background-color: #2323231f; */
+}
+.vds-menu-item[data-checked] {
+  background-color: #ffffff18; /* Example color */
+  color: #ffffff; /* Example color */
+  
+}
+.custom-vds-menu-item-label{
+    text-align: start !important;
+     padding: 15px 10px;
+     /* border-bottom: 1px solid var(--theme-color); */
+     width: 100%;
+     background-color: #212121;
+    
+     border-radius: 5px;
+     position: sticky;
+     top: 0;
+
+     margin-bottom: 10px    ;
+     color: #ffffff84;
+     font-size: .8rem;
+     font-weight: 300;
+}
+.vds-icon{
+   scale: 1.1 !important;
+}
+.vds-time-group{
+    
+    color: #ffffff !important;
+    border-radius: 5px !important;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    margin: 0.1rem !important;
+    background-color: #ffffff10 !important;
+    font-size: .8rem !important;
+    padding: 10px !important;
+    margin-bottom: .9rem !important;
+}
+.vds-button{
+    margin: .8rem .45rem !important;
+    margin-bottom: 1.5rem !important;
+}
+
+.custom-vds-button{
+    margin-bottom: .92rem !important;
+}
+.divider{
+  
+    color: var(--theme-color);
+    opacity: .5;
+    
+    
+    margin: 0.1rem .2rem ;
+    
+    padding: 0px 7px ;
+}
+.my-player-container {
+  /* Set the positioning context for the title */
+  position: relative;
+}
+
+.vds-custom-title {
+  position: absolute;
+  /* Adjust bottom to place it above the time slider */
+  bottom: 95px;
+  left: 20px;
+  color: #ffffff;
+  z-index: 100;
+  pointer-events: none; /* Allows clicks to pass through to the player */
+  text-align: start;
+}
+.vds-custom-title h1{
+    display: inline-flex;
+    gap: .3rem;
+    font-size: 1.3rem;
+    font-weight: 500;
+    
+}
+
+.vds-custom-title p{
+    color: var(--theme-color);
+    font-size: .85rem;
+    margin-bottom: .5rem;
+    font-weight: 300;
+}
+.vds-button p{
+     color: var(--theme-color);
+    font-size: .7rem;
+    font-weight: 300;
+}
+.vds-time{
+    /* color: var(--theme-color); */
+    font-size: .85rem;
+    font-weight: 300;
+}
+
+.vds-settings-menu-items{
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    background-color: #222222d4;
+
+    border-radius: 10px;
+    padding: 10px;
+    /* border: 1px solid #ffffff17; */
+    color: #ffffff;
+    font-size: .8rem;
+    font-weight: 300;
+    overflow-x: hidden;
+}
+
+.season-selector{
+    display: flex;
+    align-items: center;
+}
+
+.vds-controls-group{
+   padding: .2rem 1rem  !important;
+    /* padding-bottom: 1.5rem !important; */
+    /* padding-top: .1rem !important; */
+
+    
+}
+
+.gradientholder{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    background: rgba(0, 0, 0, 0.084);
+    pointer-events: none;
+}
+.topgradient{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 30vh;
+    z-index: 100;
+    pointer-events: none;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0));
+}
+.bottomgradient{
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 30vh;
+    z-index: 100;
+    pointer-events: none;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0));
+}
+
+
+
+
+/* Hide the title on small screens */
+@media (max-width: 768px) {
+  .vds-custom-title {
+    display: none;
+  }
+  .divider{
+    display: none;
+  }
+
+  .vds-time-group{
+    
+    margin-bottom: .1rem !important;
+}
+
+.custom-vds-button{
+    margin-bottom: .0rem !important;
+}
+.vds-slider-track{
+    height: 100% !important;
+}
+.vds-button{
+    margin: .8rem .45rem !important;
+    margin-bottom: .8rem !important;
+}
+}

@@ -11,12 +11,16 @@
   },
   "dependencies": {
     "@vidstack/react": "^1.12.13",
+    "artplayer": "^5.2.5",
+    "artplayer-plugin-hls-control": "^1.0.1",
     "dotenv": "^16.4.7",
-    "hls.js": "^1.5.20",
+    "hls.js": "^1.6.10",
+    "lucide-react": "^0.541.0",
     "prop-types": "^15.8.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-router-dom": "^6.29.0"
+    "react-router-dom": "^6.29.0",
+    "react-select": "^5.10.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.19.0",

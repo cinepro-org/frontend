@@ -1,7 +1,7 @@
 body {
     margin: 0;
     font-family: "Arial", sans-serif;
-    background: #f5f7fa;
+    background: #000000 !important;
     color: #333;
   }
   
@@ -25,26 +25,33 @@ body {
     align-items: center;
   }
   
-  input[type="text"] {
-    padding: 0.5rem;
-    font-size: 1rem;
-    margin-bottom: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-  }
+ 
   
   button {
-    padding: 0.5rem 1rem;
-    font-size: 1rem;
+    padding: .5rem !important ;
+    font-size: .9rem !important;
     color: #fff;
-    background-color: #007bff;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    margin: 0.3rem !important;
+     background-color: #ffffff10 !important;
     border: none;
-    border-radius: 4px;
+    /* border-radius: 50% !important; */
+    transition: background-color 0.3s ease;
     cursor: pointer;
+    line-clamp: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    -webkit-line-clamp: 1;
+    -webkit-overflow: hidden;
+    -webkit-text-overflow: ellipsis;
+    -webkit-white-space: nowrap;
+    height: 40px;
   }
   
   button:hover {
-    background-color: #0056b3;
+    background-color: #ffffff2a !important;
   }
   
   a {
