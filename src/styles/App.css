@@ -28,15 +28,26 @@ body {
  
   
   button {
-    padding: 0.5rem 1rem;
-    font-size: 1rem;
+    padding: .5rem !important ;
+    font-size: .9rem !important;
     color: #fff;
-    margin: 0.1rem !important;
-    background-color: #ffffff09 !important;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    margin: 0.3rem !important;
+     background-color: #ffffff10 !important;
     border: none;
     /* border-radius: 50% !important; */
     transition: background-color 0.3s ease;
     cursor: pointer;
+    line-clamp: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    -webkit-line-clamp: 1;
+    -webkit-overflow: hidden;
+    -webkit-text-overflow: ellipsis;
+    -webkit-white-space: nowrap;
+    height: 40px;
   }
   
   button:hover {

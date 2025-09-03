@@ -2,12 +2,84 @@ import  { useMemo, useState, useEffect, useRef, useCallback } from "react";
 import PropTypes from "prop-types";
 import "@vidstack/react/player/styles/default/theme.css";
 import "@vidstack/react/player/styles/default/layouts/video.css";
-import { MediaPlayer, MediaProvider, Track, Poster } from "@vidstack/react";
+import { MediaPlayer, MediaProvider, Track, Poster,Captions} from "@vidstack/react";
 import { defaultLayoutIcons, DefaultVideoLayout } from "@vidstack/react/player/layouts/default";
 import { reverseLanguageMap } from "../../utils/languages";
 import "./Videoplayer.css";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger, DropdownMenuLabel, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSeparator } from "../DropdownComponents/DropdownMenu";
-import { ToggleLeft } from "lucide-react";
+import QualitySubmenu from "./qualitysubmenu/QualitySubmenu";
+import SourceSubmenu from "./sourcessubmenu/SourcesSubmenu";
+import {
+  PlayIcon,
+  PauseIcon,
+  Volume1Icon,
+  Volume2Icon,
+  VolumeXIcon,
+  MaximizeIcon,
+  MinimizeIcon,
+  SubtitlesIcon,
+  AirplayIcon,
+  CastIcon,
+  PictureInPictureIcon,
+  SettingsIcon, // Add SettingsIcon
+  PictureInPicture2,
+  CaptionsOffIcon,
+  ListEnd,
+  ChevronLeft,
+  ChevronRight,  // For back button in settings
+} from 'lucide-react';
+import EpisodeOverlay from "../episodesOverlay/EpisodeOverlay";
+import { useNavigate } from "react-router-dom";
+// import { type DefaultLayoutIcons } from '@vidstack/react/player/layouts/default';
+
+ const customIcons = {
+  // Main Play/Pause Button
+  PlayButton: {
+    Play: () => <PlayIcon className='vds-icon' />,
+    Pause: () => <PauseIcon className='vds-icon' />,
+    Replay: () => <PlayIcon className='vds-icon' />,
+  },
+  // Main Mute/Volume Button
+  MuteButton: {
+    Mute: () => <VolumeXIcon className='vds-icon' />,
+    VolumeLow: () => <Volume1Icon className='vds-icon' />,
+    VolumeHigh: () => <Volume2Icon className='vds-icon' />,
+  },
+  
+  // Fullscreen Button
+  FullscreenButton: {
+    Enter: () => <MaximizeIcon className='vds-icon' />,
+    Exit: () => <MinimizeIcon className='vds-icon' />,
+  },
+  // Captions Button
+  CaptionButton: {
+    On: () => <SubtitlesIcon className='vds-icon' />,
+    Off: () => <CaptionsOffIcon className='vds-icon' />,
+  },
+  // AirPlay Button
+  AirPlayButton: {
+    Default: () => <AirplayIcon className='vds-icon' />,
+  },
+  // Cast Button
+  GoogleCastButton: {
+    Default: () => <CastIcon className='vds-icon' />,
+  },
+  // Picture-in-Picture Button
+  PIPButton: {
+    Enter: () => <PictureInPicture2 className='vds-icon' />,
+    Exit: () => <PictureInPictureIcon className='vds-icon' />,
+  },
+  // Settings Button
+   Menu: {
+    ...defaultLayoutIcons.Menu, // Merges the default menu icons
+  
+    Settings: () => <SettingsIcon className='vds-icon' />,
+    Captions: () => <SubtitlesIcon className='vds-icon' />,
+
+    // Chevron for going back
+    // ArrowLeft: () => <ChevronLeftIcon className='vds-icon' />,
+  },
+  // For the sub-menus like speed, quality, etc.
+};
 
 // Debounce utility function
 const debounce = (func, delay) => {
@@ -19,6 +91,8 @@ const debounce = (func, delay) => {
   };
 };
 
+
+
 function VideoPlayer({ files, subtitles, ...playerSettingsProps }) {
   const playerRef = useRef(null);
   const contentId = playerSettingsProps.id;
@@ -28,9 +102,6 @@ function VideoPlayer({ files, subtitles, ...playerSettingsProps }) {
 
   const [currentSourceIndex, setCurrentSourceIndex] = useState(0);
   const [hasFailedAllSources, setHasFailedAllSources] = useState(false);
-  const [showSourceSelect, setShowSourceSelect] = useState(false);
-  const [areControlsVisible, setAreControlsVisible] = useState(false);
-
   // Helper to determine MIME type
   function getMimeType(fileType) {
     switch (fileType) {
@@ -43,9 +114,16 @@ function VideoPlayer({ files, subtitles, ...playerSettingsProps }) {
     }
   }
 
+  const handleSeek = (seconds) => {
+    if (playerRef.current) {
+      const newTime = playerRef.current.currentTime + seconds;
+      playerRef.current.currentTime = Math.max(0, newTime);
+    }
+  };
+
   // Memoized safe files and sorted subtitles
   const safeFiles = useMemo(() => Array.isArray(files) ? files : [], [files]);
-  const sortedSubtitles = useMemo(() => {
+ const sortedSubtitles = useMemo(() => {
     return Array.from(new Set((subtitles || []).filter(subtitle => subtitle).map(subtitle => subtitle.lang))).sort((a, b) => {
       const langA = reverseLanguageMap[a] || '';
       const langB = reverseLanguageMap[b] || '';
@@ -175,7 +253,7 @@ function VideoPlayer({ files, subtitles, ...playerSettingsProps }) {
   useEffect(() => {
     setCurrentSourceIndex(0);
     setHasFailedAllSources(false);
-    setShowSourceSelect(false);
+
   }, [files, contentId]);
 
   const handleMediaError = () => {
@@ -194,74 +272,65 @@ function VideoPlayer({ files, subtitles, ...playerSettingsProps }) {
     const selectedIndex = parseInt(value, 10);
     setCurrentSourceIndex(selectedIndex);
     setHasFailedAllSources(false);
-    setShowSourceSelect(false); // Close dropdown on selection
+    
   };
 
-  const toggleSourceSelect = () => {
-    setShowSourceSelect(prev => !prev);
-  };
-
-  const handleControlsChange = (isVisible) => {
+  const [areControlsVisible, setAreControlsVisible] = useState(true);
+ const handleControlsChange = (isVisible) => {
     setAreControlsVisible(isVisible);
-    // Removed the line that automatically closes the dropdown when controls disappear
-    // if (!isVisible) {
-    //   setShowSourceSelect(false);
-    // }
+    
   };
 
+  const [showEpisodes , setShowEpisodes] = useState(false);
+
+  const episodes = playerSettingsProps.episodes;
+  const navigate = useNavigate();
+  const currentEpisodeNumber = parseInt(episodeNumber, 10);
+  const totalEpisodes = episodes?.length;
+
+  const toggleEpisodes = () => {
+    setShowEpisodes(!showEpisodes);
+  };
+
+  const handleNextEp = () => {
+    const totalEpisodes = playerSettingsProps.episodes;
+    if (totalEpisodes) {
+      const nextEpisodeNumber = parseInt(episodeNumber , 10) + 1;
+       if (nextEpisodeNumber <= totalEpisodes) {
+        navigate(`/tv/${contentId}/${seasonNumber}/${nextEpisodeNumber}`);
+      }
+    }
+  };
+
+  const handlePrevEp = () => {
+    const totalEpisodes = playerSettingsProps.episodes;
+    if (totalEpisodes) {
+      const prevEpisodeNumber = parseInt(episodeNumber) - 1;
+      if (prevEpisodeNumber > 0) {
+        navigate(`/tv/${contentId}/${seasonNumber}/${prevEpisodeNumber}`);
+      }
+    }
+  };
+  
   return (
     <div className="video-container">
       <div className="video-player-wrapper">
         {safeFiles.length > 0 && !hasFailedAllSources ? (
           <>
-            <div className="sourceholder">
-               {areControlsVisible && ( // The dropdown trigger only appears when controls are visible
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button
-                    className="source-toggle-button"
-                    onClick={toggleSourceSelect}
-                    aria-label="Select video source"
-                  >
-                    <ToggleLeft size={20} />
-                  </button>
-                </DropdownMenuTrigger>
-                {/* The DropdownMenuContent now stays open until explicitly closed or focus is lost */}
-                {showSourceSelect && (
-                  <DropdownMenuContent
-                    className="sources-dropdown-content"
-                    onBlur={() => setShowSourceSelect(false)}
-                    setIsOpen={setShowSourceSelect}
-                  >
-                    <DropdownMenuLabel>Select a Source</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuRadioGroup
-                      value={currentSourceIndex.toString()}
-                      onValueChange={handleDropdownSelect}
-                    >
-                      {videoSources.map((source, index) => (
-                        <DropdownMenuRadioItem key={index} value={source.value}>
-                          {source.label}
-                        </DropdownMenuRadioItem>
-                      ))}
-                    </DropdownMenuRadioGroup>
-                  </DropdownMenuContent>
-                )}
-              </DropdownMenu>
-            )}
-            </div>
+
            
             <MediaPlayer
               ref={playerRef}
-              title={
-                seasonNumber && episodeNumber
-                  ? `${playerSettingsProps.title || ""} S${seasonNumber} • E${episodeNumber}`
-                  : playerSettingsProps.title || ""
-              }
+              // title={
+              //   seasonNumber && episodeNumber
+              //     ? `${playerSettingsProps.title || ""} S${seasonNumber} • E${episodeNumber}`
+              //     : playerSettingsProps.title || ""
+              // }
               poster={playerSettingsProps.poster || ""}
               src={currentSource}
               playsInline
               crossOrigin
+              
               autoPlay={playerSettingsProps.autoplay || false}
               onError={handleMediaError}
               onControlsChange={handleControlsChange}
@@ -274,13 +343,103 @@ function VideoPlayer({ files, subtitles, ...playerSettingsProps }) {
                   alt={playerSettingsProps.showTitle ? (playerSettingsProps.title || "") : ""}
                 />
               </MediaProvider>
-              <DefaultVideoLayout icons={defaultLayoutIcons} />
+
               {
+                showEpisodes && (
+                  <EpisodeOverlay contentId={contentId} currentSeason={seasonNumber} currentEpisode={episodeNumber} onClose={toggleEpisodes} />
+                )
+              }
+
+       {
+   areControlsVisible && (
+    seasonNumber && episodeNumber ? (
+      <div className="vds-custom-title">
+        <p>{playerSettingsProps.title || ""}</p>
+        <h1>
+          S{seasonNumber}:E{episodeNumber} - <p>&quot;</p>{playerSettingsProps.activeEpisodeTitle || ""} <p>&quot;</p>
+        </h1>
+      </div>
+    ) : (
+      <div className="vds-custom-title">
+        <p>Watching - {playerSettingsProps.tagline}</p>
+        <h1>{playerSettingsProps.title || ""}</h1>
+        
+      </div>
+    )
+  )
+}
+
+ {
+   areControlsVisible && (
+    <div className="gradientholder">
+      <div className="topgradient"></div>
+      <div className="bottomgradient"></div>
+    </div>
+  )
+}
+             
+             
+              <DefaultVideoLayout icons={
+                customIcons}
+               slots={{
+               largeLayout:{
+                 beforePlayButton:
+                  <button className="vds-button" onClick={() => handleSeek(-10)}>
+                     <p>10</p>
+                  <svg  className="vds-icon" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" fill="#ffffff"><g id="SVGRepo_bgCarrier" strokeWidth="0"></g><g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g><g id="SVGRepo_iconCarrier"> <title>rotate-left-solid</title> <g id="Layer_2" data-name="Layer 2"> <g id="invisible_box" data-name="invisible box"> <rect width="48" height="48" fill="none"></rect> </g> <g id="icons_Q2" data-name="icons Q2"> <g> <path d="M5.7,2A2,2,0,0,1,8,4V8.9A22,22,0,0,1,46,24h0a2,2,0,0,1-4,0h0A18,18,0,0,0,10.6,12h5.3A2.1,2.1,0,0,1,18,13.7,2,2,0,0,1,16,16H6a2,2,0,0,1-2-2V4.1A2.1,2.1,0,0,1,5.7,2Z"></path> <path d="M24,42h0a2,2,0,1,1-2,2A2,2,0,0,1,24,42Z"></path> <path d="M33,39.6h0a1.9,1.9,0,0,1,2.7.7A1.9,1.9,0,0,1,35,43a2,2,0,0,1-2-3.4Z"></path> <path d="M39.6,33a1.9,1.9,0,0,1,2.7-.7,2,2,0,0,1,.8,2.7,2.1,2.1,0,0,1-2.8.7,1.9,1.9,0,0,1-.7-2.7Z"></path> <path d="M5.7,32.3a1.9,1.9,0,0,1,2.7.7h0a1.9,1.9,0,0,1-.7,2.7A1.9,1.9,0,0,1,5,35,1.9,1.9,0,0,1,5.7,32.3Z"></path> <path d="M15,39.6h0a1.9,1.9,0,0,1,.7,2.7,2,2,0,0,1-2.7.8,2.1,2.1,0,0,1-.7-2.8A1.9,1.9,0,0,1,15,39.6Z"></path> </g> </g> </g> </g></svg>
+
+                
+                 </button>,
+                 afterPlayButton: 
+                     <button className="vds-button" onClick={() => handleSeek(-10)}>
+                    <svg className="vds-icon" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" fill="#ffffff"><g id="SVGRepo_bgCarrier" strokeWidth="0"></g><g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g><g id="SVGRepo_iconCarrier"> <title>rotate-right-solid</title> <g id="Layer_2" data-name="Layer 2"> <g id="invisible_box" data-name="invisible box"> <rect width="48" height="48" fill="none"></rect> </g> <g id="icons_Q2" data-name="icons Q2"> <g> <path d="M42.3,2A2,2,0,0,0,40,4V8.9A22,22,0,0,0,2,24H2a2,2,0,0,0,4,0H6A18,18,0,0,1,37.4,12H32.1A2.1,2.1,0,0,0,30,13.7,2,2,0,0,0,32,16H42a2,2,0,0,0,2-2V4.1A2.1,2.1,0,0,0,42.3,2Z"></path> <path d="M24,42h0a2,2,0,1,0,2,2A2,2,0,0,0,24,42Z"></path> <path d="M15,39.6h0a1.9,1.9,0,0,0-2.7.7A1.9,1.9,0,0,0,13,43a2,2,0,0,0,2-3.4Z"></path> <path d="M8.4,33a1.9,1.9,0,0,0-2.7-.7A2,2,0,0,0,4.9,35a2.1,2.1,0,0,0,2.8.7A1.9,1.9,0,0,0,8.4,33Z"></path> <path d="M42.3,32.3a1.9,1.9,0,0,0-2.7.7h0a1.9,1.9,0,0,0,.7,2.7A1.9,1.9,0,0,0,43,35,1.9,1.9,0,0,0,42.3,32.3Z"></path> <path d="M33,39.6h0a1.9,1.9,0,0,0-.7,2.7,2,2,0,0,0,2.7.8,2.1,2.1,0,0,0,.7-2.8A1.9,1.9,0,0,0,33,39.6Z"></path> </g> </g> </g> </g></svg>
+                    <p>10</p>
+                   </button>,
+
+                    beforeTopControlsGroupEnd: seasonNumber ? <div className="season-selector">
+                        {episodes && currentEpisodeNumber > 1 && (
+      <button className="vds-button" onClick={handlePrevEp}>
+       {currentEpisodeNumber - 1} <ChevronLeft className="vds-icon" /> 
+      </button>
+    )}
+
+    <button className="custom-vds-button" onClick={toggleEpisodes} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' , padding: '0rem 1rem'}}>
+      <div className="divider">|</div>
+      <p style={{ fontSize: "0.8rem" }}>Episodes ({currentEpisodeNumber}/{totalEpisodes}) </p>
+      <div className="divider">|</div>
+    </button>
+
+    {episodes && currentEpisodeNumber < totalEpisodes && (
+      <button className="vds-button" onClick={handleNextEp}>
+        <ChevronRight className="vds-icon" />  {currentEpisodeNumber + 1}
+      </button>
+    )}
+                    </div> : null,
+                    
+               },
+               smallLayout: {
+                  beforeTopControlsGroupStart: seasonNumber ? <button className="custom-vds-button"  onClick={toggleEpisodes} ><ListEnd  className="vds-icon"/></button> : null,
+               
+               },
+                afterCaptionButton: <div className="divider">|</div>,
+                //  beforeSettingsMenuItemsStart: <QualitySubmenu />,
+                 beforeMuteButton: <div className="divider">|</div>,
+                 afterVolumeSlider: <div className="divider">|</div>,
+                 beforeSettingsMenu : <QualitySubmenu />,
+                 beforeGoogleCastButton: <div className="divider">|</div>,
+                 afterSettingsMenu: <SourceSubmenu sources={videoSources} selectedValue={currentSourceIndex} onSelect={handleDropdownSelect} />,
+              }}
+              />
+    
+               <Captions className="vds-captions" />
+             
+               {
                 sortedSubtitles.map((subtitle, index) => (
                   <Track
                     key={`${subtitle.lang}-${index}`}
                     kind="subtitles"
                     src={subtitle.url}
+                    type={subtitle.type}
                     srcLang={subtitle.lang}
                     label={reverseLanguageMap[subtitle.lang] || subtitle.lang}
                     default={index === 0}
