@@ -160,7 +160,7 @@ function WatchMovie() {
           <h1>Not Found </h1>
           <p>We couldn&apos;t find the movie you were looking for.</p>
           <p>
-            Try refreshing the page or go back to the <Link to="/">homepage</Link>
+            Try refreshing the page or go back to the
           </p>
         </div>
       ) : (

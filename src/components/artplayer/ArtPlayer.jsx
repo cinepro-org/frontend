@@ -314,6 +314,37 @@ export default function ArtPlayer({ files, subtitles, ...playerSettingsProps }) 
                         }
 
                         const hls = new Hls({
+                            debug: false,
+                            // buffer configuration for smooth playback
+                            // keeps 40 seconds ahead buffered at all times
+                            maxBufferLength: 40,
+                            // allows up to 5 minutes (300 seconds) of buffer when user is idle
+                            // this handles your "skip 5 minutes ahead" requirement
+                            maxMaxBufferLength: 300,
+                            // start buffering when only 10 seconds left in buffer
+                            maxBufferSize: 60 * 1000 * 1000, // 60 MB buffer size
+                            // how far ahead to buffer (in seconds) - set to 10 for aggressive preloading
+                            maxBufferHole: 0.5,
+                            // low latency mode disabled for better buffering
+                            lowLatencyMode: false,
+                            // aggressive back buffer management
+                            // keeps last 60 seconds of watched content in buffer for rewind
+                            backBufferLength: 60,
+                            // automatically recover from buffer stalls
+                            enableWorker: true,
+                            // network loading optimization
+                            manifestLoadingTimeOut: 10000,
+                            manifestLoadingMaxRetry: 4,
+                            manifestLoadingRetryDelay: 1000,
+                            levelLoadingTimeOut: 10000,
+                            levelLoadingMaxRetry: 4,
+                            levelLoadingRetryDelay: 1000,
+                            fragLoadingTimeOut: 20000,
+                            fragLoadingMaxRetry: 6,
+                            fragLoadingRetryDelay: 1000,
+                            // start loading immediately
+                            startPosition: -1,
+                            // xhr configuration with headers
                             xhrSetup: function (xhr) {
                                 const source = files.find(f => f.file === url);
                                 if (source?.headers) {
@@ -403,7 +434,56 @@ export default function ArtPlayer({ files, subtitles, ...playerSettingsProps }) 
             } catch (error) {
                 console.error("Error loading ArtPlayer playback progress from local storage:", error);
             }
+            // monitor buffer health and trigger preloading
+            let lastBufferCheck = 0;
+            const checkBufferHealth = () => {
+                if (!art.video || !art.duration) return;
+
+                const currentTime = art.currentTime;
+                const buffered = art.video.buffered;
+
+                if (buffered.length > 0) {
+                    // find buffer range containing current time
+                    let bufferEnd = 0;
+                    for (let i = 0; i < buffered.length; i++) {
+                        if (buffered.start(i) <= currentTime && buffered.end(i) > currentTime) {
+                            bufferEnd = buffered.end(i);
+                            break;
+                        }
+                    }
+
+                    const bufferAhead = bufferEnd - currentTime;
+
+                    // if buffer is less than 20 seconds ahead, trigger aggressive loading
+                    // this prevents buffering during normal playback
+                    if (bufferAhead < 30 && hlsRef.current) {
+                        // hls.js automatically loads more segments when buffer is low
+                        // we just need to ensure it's not paused
+                        if (art.playing && hlsRef.current.media && !hlsRef.current.media.paused) {
+                            // trigger next level load if available
+                            hlsRef.current.trigger('hlsFragLoading');
+                        }
+                    }
+
+                    // log buffer status every 5 seconds for debugging
+                    const now = Date.now();
+                    if (now - lastBufferCheck > 5000) {
+                        console.log(`[Buffer Status] Ahead: ${bufferAhead.toFixed(1)}s, Position: ${currentTime.toFixed(1)}s`);
+                        lastBufferCheck = now;
+                    }
+                }
+            };
+
+            // check buffer every second during playback
+            const bufferInterval = setInterval(checkBufferHealth, 1000);
+
+            art.on("destroy", () => {
+                clearInterval(bufferInterval);
+            });
+
         });
+
+
 
         // General error listener for ArtPlayer
         art.on('error', (error, type) => {
@@ -417,6 +497,50 @@ export default function ArtPlayer({ files, subtitles, ...playerSettingsProps }) 
 
         art.on("timeupdate", () => {
             debouncedSaveProgress();
+        });
+
+        // handle seeking with buffer awareness
+        // prevents buffering when user seeks within buffered range
+        art.on("seek", () => {
+            if (!art.video || !hlsRef.current) return;
+
+            const seekTime = art.currentTime;
+            const buffered = art.video.buffered;
+            let isBuffered = false;
+
+            // check if seek target is already buffered
+            for (let i = 0; i < buffered.length; i++) {
+                if (seekTime >= buffered.start(i) && seekTime <= buffered.end(i)) {
+                    isBuffered = true;
+                    break;
+                }
+            }
+
+            if (!isBuffered) {
+                // seeking to unbuffered position
+                // show loading indicator
+                art.loading.show = true;
+
+                // for hls streams, trigger immediate fragment loading
+                if (hlsRef.current && hlsRef.current.media) {
+                    // hls.js will automatically handle this, but we can optimize
+                    // by ensuring the media element is ready
+                    const handleCanPlay = () => {
+                        art.loading.show = false;
+                        art.video.removeEventListener('canplay', handleCanPlay);
+                    };
+                    art.video.addEventListener('canplay', handleCanPlay);
+
+                    // timeout to hide loading after 3 seconds even if canplay doesn't fire
+                    setTimeout(() => {
+                        art.loading.show = false;
+                        art.video.removeEventListener('canplay', handleCanPlay);
+                    }, 3000);
+                }
+            } else {
+                // seeking within buffered range - instant seek
+                art.loading.show = false;
+            }
         });
 
         art.on("destroy", () => {

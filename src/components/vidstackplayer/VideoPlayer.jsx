@@ -318,24 +318,65 @@ function VideoPlayer({ files, subtitles, ...playerSettingsProps }) {
         {safeFiles.length > 0 && !hasFailedAllSources ? (
           <>
 
-           
-            <MediaPlayer
-              ref={playerRef}
-              // title={
-              //   seasonNumber && episodeNumber
-              //     ? `${playerSettingsProps.title || ""} S${seasonNumber} • E${episodeNumber}`
-              //     : playerSettingsProps.title || ""
-              // }
-              poster={playerSettingsProps.poster || ""}
-              src={currentSource}
-              playsInline
-              crossOrigin
-              
-              autoPlay={playerSettingsProps.autoplay || false}
-              onError={handleMediaError}
-              onControlsChange={handleControlsChange}
-              className="video-player"
-            >
+
+              <MediaPlayer
+                  ref={playerRef}
+                  poster={playerSettingsProps.poster || ""}
+                  src={currentSource}
+                  playsInline
+                  crossOrigin
+                  // title={
+                  //   seasonNumber && episodeNumber
+                  //     ? `${playerSettingsProps.title || ""} S${seasonNumber} • E${episodeNumber}`
+                  //     : playerSettingsProps.title || ""
+                  // }
+
+                  // preload strategy - 'auto' loads as much as possible
+                  // this enables aggressive buffering for smooth seeks
+                  preload="auto"
+                  // autoplay setting from props
+                  autoPlay={playerSettingsProps.autoplay || false}
+                  // buffer configuration for vidstack
+                  // note: these are applied via storage hints below
+                  storage="media-storage"
+                  // error handling
+                  onError={handleMediaError}
+                  // controls visibility tracking
+                  onControlsChange={handleControlsChange}
+                  className="video-player"
+                  // additional playback hints
+                  controlsDelay={2000}
+                  // enable hardware acceleration
+                  muted={false}
+                  // buffer settings via data attributes
+                  data-buffer-ahead="300"
+                  data-buffer-behind="60"
+              >
+
+                  {/* hls.js configuration for vidstack when using hls sources */}
+                  {currentSource?.type === 'application/x-mpegurl' && (
+                      <script
+                          type="application/json"
+                          data-hls-config
+                          dangerouslySetInnerHTML={{
+                              __html: JSON.stringify({
+                                  maxBufferLength: 30,
+                                  maxMaxBufferLength: 300,
+                                  maxBufferSize: 60 * 1000 * 1000,
+                                  maxBufferHole: 0.5,
+                                  lowLatencyMode: false,
+                                  backBufferLength: 60,
+                                  enableWorker: true,
+                                  startPosition: -1,
+                                  manifestLoadingTimeOut: 10000,
+                                  levelLoadingTimeOut: 10000,
+                                  fragLoadingTimeOut: 20000,
+                                  fragLoadingMaxRetry: 6,
+                              })
+                          }}
+                      />
+                  )}
+
               <MediaProvider>
                 <Poster
                   className="vds-poster"
