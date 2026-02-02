@@ -1,5 +1,6 @@
-> [!important]
-> This frontend does not really work. it has only been made for testing purposes (i mean it works i think but it is not usable on a large scale.)
+> [!Important]
+> This frontend is getting revived...
+> Development is in progress. Tips/Suggestions are welcome! Open a PR or an issue.
 
 # CinePro Frontend
 
@@ -13,30 +14,12 @@ This repository contains the frontend for CinePro, an open-source movie and TV s
 - Stream videos using HLS.js
 - Responsive design
 
-## Usage
-
-### Pages
-
-#### Home Page
-
-The home page provides an introduction and instructions on how to use the platform. It is implemented in [`HomePage`](src/pages/HomePage.jsx).
-
-#### Movie Page
-
-The movie page displays the video player for a specific movie. It fetches the movie data from the backend and streams the video using HLS.js. It is implemented in [`Movie`](src/pages/Movie.jsx).
-
-### Components
-
-#### VideoPlayer
-
-The `VideoPlayer` component is responsible for streaming videos using HLS.js. It is implemented in [`VideoPlayer`](src/components/VideoPlayer.jsx).
-
 ## Installation
 
 ### Requirements
 
 - Node.js
-- Vite
+- A TMDB API key
 
 ### Steps
 
