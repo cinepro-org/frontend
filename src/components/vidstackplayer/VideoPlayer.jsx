@@ -349,8 +349,27 @@ function VideoPlayer({ files, subtitles, ...playerSettingsProps }) {
                   // enable hardware acceleration
                   muted={false}
                   // buffer settings via data attributes
-                  data-buffer-ahead="300"
-                  data-buffer-behind="60"
+                  hls={{
+                      maxBufferLength: 60,
+                      maxMaxBufferLength: 300,
+                      maxBufferSize: 80 * 1000 * 1000,
+                      maxBufferHole: 0.5,
+                      lowLatencyMode: false,
+                      backBufferLength: 90,
+                      enableWorker: true,
+                      startPosition: -1,
+                      startLevel: -1,
+                      progressive: true,
+                      manifestLoadingTimeOut: 15000,
+                      manifestLoadingMaxRetry: 6,
+                      manifestLoadingRetryDelay: 500,
+                      levelLoadingTimeOut: 15000,
+                      levelLoadingMaxRetry: 6,
+                      levelLoadingRetryDelay: 500,
+                      fragLoadingTimeOut: 30000,
+                      fragLoadingMaxRetry: 8,
+                      fragLoadingRetryDelay: 500,
+                  }}
               >
 
                   {/* hls.js configuration for vidstack when using hls sources */}

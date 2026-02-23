@@ -218,13 +218,13 @@ export default function ArtPlayer({ files, subtitles, ...playerSettingsProps }) 
             return [
                 {
                     html: 'Sources',
-                    tooltip: `Source ${currentFileIndex + 1}`, // Show current source
+                    tooltip: files[currentFileIndex]?.label || `Source ${currentFileIndex + 1}`, // Show current source
                     icon: '<svg width="22px" height="22px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M12 16.5C14.4853 16.5 16.5 14.4853 16.5 12C16.5 9.51472 14.4853 7.5 12 7.5C9.51472 7.5 7.5 9.51472 7.5 12C7.5 14.4853 9.51472 16.5 12 16.5Z" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M2 12H7" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M17 12H22" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>',
                     selector: files.map((f, index) => ({
-                        html: `Source ${index + 1}`,
+                        html: f.label || `Source ${index + 1}`,
                         url: f.file,
-                        default: index === currentFileIndex, // Mark the current active source
-                        index: index, // Add index for easy reference
+                        default: index === currentFileIndex,
+                        index: index,
                     })),
                     onSelect: function (item) {
                         // Manually switch URL, which will re-trigger the useEffect if index changes
@@ -315,36 +315,31 @@ export default function ArtPlayer({ files, subtitles, ...playerSettingsProps }) 
 
                         const hls = new Hls({
                             debug: false,
-                            // buffer configuration for smooth playback
-                            // keeps 40 seconds ahead buffered at all times
-                            maxBufferLength: 40,
-                            // allows up to 5 minutes (300 seconds) of buffer when user is idle
-                            // this handles your "skip 5 minutes ahead" requirement
+                            // buffer 60 seconds ahead minimum, allow up to 5 min when network is fast
+                            maxBufferLength: 60,
                             maxMaxBufferLength: 300,
-                            // start buffering when only 10 seconds left in buffer
-                            maxBufferSize: 60 * 1000 * 1000, // 60 MB buffer size
-                            // how far ahead to buffer (in seconds) - set to 10 for aggressive preloading
+                            // 80MB buffer size — enough for 1080p at high bitrate
+                            maxBufferSize: 80 * 1000 * 1000,
                             maxBufferHole: 0.5,
-                            // low latency mode disabled for better buffering
                             lowLatencyMode: false,
-                            // aggressive back buffer management
-                            // keeps last 60 seconds of watched content in buffer for rewind
-                            backBufferLength: 60,
-                            // automatically recover from buffer stalls
+                            // keep 90 seconds behind for rewind
+                            backBufferLength: 90,
                             enableWorker: true,
-                            // network loading optimization
-                            manifestLoadingTimeOut: 10000,
-                            manifestLoadingMaxRetry: 4,
-                            manifestLoadingRetryDelay: 1000,
-                            levelLoadingTimeOut: 10000,
-                            levelLoadingMaxRetry: 4,
-                            levelLoadingRetryDelay: 1000,
-                            fragLoadingTimeOut: 20000,
-                            fragLoadingMaxRetry: 6,
-                            fragLoadingRetryDelay: 1000,
-                            // start loading immediately
+                            // aggressive retry settings
+                            manifestLoadingTimeOut: 15000,
+                            manifestLoadingMaxRetry: 6,
+                            manifestLoadingRetryDelay: 500,
+                            levelLoadingTimeOut: 15000,
+                            levelLoadingMaxRetry: 6,
+                            levelLoadingRetryDelay: 500,
+                            fragLoadingTimeOut: 30000,
+                            fragLoadingMaxRetry: 8,
+                            fragLoadingRetryDelay: 500,
                             startPosition: -1,
-                            // xhr configuration with headers
+                            // start at highest quality level
+                            startLevel: -1,
+                            // preload next segment aggressively
+                            progressive: true,
                             xhrSetup: function (xhr) {
                                 const source = files.find(f => f.file === url);
                                 if (source?.headers) {
@@ -434,48 +429,30 @@ export default function ArtPlayer({ files, subtitles, ...playerSettingsProps }) 
             } catch (error) {
                 console.error("Error loading ArtPlayer playback progress from local storage:", error);
             }
-            // monitor buffer health and trigger preloading
-            let lastBufferCheck = 0;
+            // monitor buffer and nudge HLS when falling behind
             const checkBufferHealth = () => {
-                if (!art.video || !art.duration) return;
+                if (!art.video || !hlsRef.current) return;
 
                 const currentTime = art.currentTime;
                 const buffered = art.video.buffered;
+                let bufferAhead = 0;
 
-                if (buffered.length > 0) {
-                    // find buffer range containing current time
-                    let bufferEnd = 0;
-                    for (let i = 0; i < buffered.length; i++) {
-                        if (buffered.start(i) <= currentTime && buffered.end(i) > currentTime) {
-                            bufferEnd = buffered.end(i);
-                            break;
-                        }
+                for (let i = 0; i < buffered.length; i++) {
+                    if (buffered.start(i) <= currentTime + 0.5 && buffered.end(i) > currentTime) {
+                        bufferAhead = buffered.end(i) - currentTime;
+                        break;
                     }
+                }
 
-                    const bufferAhead = bufferEnd - currentTime;
-
-                    // if buffer is less than 20 seconds ahead, trigger aggressive loading
-                    // this prevents buffering during normal playback
-                    if (bufferAhead < 30 && hlsRef.current) {
-                        // hls.js automatically loads more segments when buffer is low
-                        // we just need to ensure it's not paused
-                        if (art.playing && hlsRef.current.media && !hlsRef.current.media.paused) {
-                            // trigger next level load if available
-                            hlsRef.current.trigger('hlsFragLoading');
-                        }
-                    }
-
-                    // log buffer status every 5 seconds for debugging
-                    const now = Date.now();
-                    if (now - lastBufferCheck > 5000) {
-                        console.log(`[Buffer Status] Ahead: ${bufferAhead.toFixed(1)}s, Position: ${currentTime.toFixed(1)}s`);
-                        lastBufferCheck = now;
-                    }
+                // if buffer drops under 30s and hls is not loading, bump the max buffer
+                // this tells hls.js to load more aggressively
+                if (bufferAhead < 30 && hlsRef.current) {
+                    hlsRef.current.config.maxMaxBufferLength = 300;
+                    hlsRef.current.config.maxBufferLength = 60;
                 }
             };
 
-            // check buffer every second during playback
-            const bufferInterval = setInterval(checkBufferHealth, 1000);
+            const bufferInterval = setInterval(checkBufferHealth, 2000);
 
             art.on("destroy", () => {
                 clearInterval(bufferInterval);
@@ -581,7 +558,6 @@ export default function ArtPlayer({ files, subtitles, ...playerSettingsProps }) 
         <div
             ref={artRef}
             className="artplayercontainer"
-            style={{ aspectRatio: "16/9" }}
         />
     );
 }
@@ -593,6 +569,12 @@ ArtPlayer.propTypes = {
             type: PropTypes.string.isRequired,
             headers: PropTypes.object,
             default: PropTypes.bool,
+            label: PropTypes.string,
+            quality: PropTypes.string,
+            provider: PropTypes.shape({
+                id: PropTypes.string,
+                name: PropTypes.string,
+            }),
         })
     ).isRequired,
     subtitles: PropTypes.arrayOf(

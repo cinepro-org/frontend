@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import { useEffect, useState } from "react";
 import { useParams, useLocation } from "react-router-dom";
-import { fetchMovie, fetchTmdbDetails, fetchSeries } from "../services/apiClient";
+import { fetchMovie, fetchSeries, refreshSources, fetchTmdbDetails } from "../services/apiClient";
 import VideoPlayer from "../components/vidstackplayer/VideoPlayer";
 import ArtPlayer from "../components/artplayer/ArtPlayer";
 import { Link } from "react-router-dom";
@@ -17,11 +17,13 @@ function WatchMovie() {
   const { episodes, loading, error } = useFetchEpisodes(id, season);
   const location = useLocation();
 
-  const [movie, setMovie] = useState(null);
-  const [files, setMovieFiles] = useState(null);
-  const [tmdbDetails, setTmdbDetails] = useState(null);
-  const [loadingBackend, setLoadingBackend] = useState(true);
-  const [loadingTmdb, setLoadingTmdb] = useState(true);
+    const [movie, setMovie] = useState(null);
+    const [files, setMovieFiles] = useState(null);
+    const [tmdbDetails, setTmdbDetails] = useState(null);
+    const [loadingBackend, setLoadingBackend] = useState(true);
+    const [loadingTmdb, setLoadingTmdb] = useState(true);
+    const [responseId, setResponseId] = useState(null);
+    const [expiresAt, setExpiresAt] = useState(null);
 
   // Read saved params from local storage on initial render
   const savedParams = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)) || {};
@@ -71,11 +73,15 @@ function WatchMovie() {
           if (season && episode) {
             const data = await fetchSeries(id, season, episode);
             setMovie(data);
-            setMovieFiles(data.files);
+              setMovieFiles(data.files);
+              if (data.responseId) setResponseId(data.responseId);
+              if (data.expiresAt) setExpiresAt(data.expiresAt);
           } else {
             const data = await fetchMovie(id);
             setMovie(data);
             setMovieFiles(data.files);
+              if (data.responseId) setResponseId(data.responseId);
+              if (data.expiresAt) setExpiresAt(data.expiresAt);
           }
         } catch (error) {
           setMovie(null);
@@ -141,6 +147,41 @@ function WatchMovie() {
 
   const isLoading = loadingBackend || loadingTmdb;
   const hasErrors = (!movie || !files) && !loadingBackend;
+
+    useEffect(() => {
+        if (!expiresAt || !responseId) return;
+
+        const expiryTime = new Date(expiresAt).getTime();
+        const now = Date.now();
+        // refresh 2 minutes before expiry
+        const delay = expiryTime - now - 2 * 60 * 1000;
+
+        if (delay <= 0) {
+            // already expired or about to, refresh now
+            refreshSources(responseId).then((data) => {
+                if (data?.files) {
+                    setMovieFiles(data.files);
+                    setMovie(data);
+                }
+                if (data?.responseId) setResponseId(data.responseId);
+                if (data?.expiresAt) setExpiresAt(data.expiresAt);
+            }).catch(console.error);
+            return;
+        }
+
+        const timer = setTimeout(() => {
+            refreshSources(responseId).then((data) => {
+                if (data?.files) {
+                    setMovieFiles(data.files);
+                    setMovie(data);
+                }
+                if (data?.responseId) setResponseId(data.responseId);
+                if (data?.expiresAt) setExpiresAt(data.expiresAt);
+            }).catch(console.error);
+        }, delay);
+
+        return () => clearTimeout(timer);
+    }, [expiresAt, responseId]);
 
   return (
     <div className={`watch-movie-container ${!isLoading && movie?.files ? "watch-movie-container-notLoading" : ""}`}>

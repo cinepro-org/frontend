@@ -1,3 +1,7 @@
+:root {
+    --theme-color: #ff4d6d;
+}
+
 .artplayercontainer{
     height: 100vh;
     max-width: 100vw;
@@ -7,29 +11,96 @@
 }
 .art-settings{
     height: max-content !important;
-    border-radius: 20px !important;
-    width: 240px !important;
-    
+    border-radius: 16px !important;
+    width: 260px !important;
     bottom: 70px !important;
-    background-color: transparent !important;
+    background-color: #1a1a1aee !important;
+    backdrop-filter: blur(15px) !important;
+    -webkit-backdrop-filter: blur(15px) !important;
+    border: 1px solid #ffffff1a !important;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5) !important;
+    overflow: hidden !important;
 }
 
 .art-setting-item{
-    height: 60px !important;
-    line-height: 50px;
-    font-size: 12px;
-    padding: 10px 5px !important;
-    padding-left: 15px !important;
-    cursor: pointer;
+    height: 52px !important;
+    line-height: 52px !important;
+    font-size: 13px !important;
+    padding: 0 15px !important;
+    cursor: pointer !important;
+    color: #ffffff !important;
+    transition: background 0.15s !important;
+}
+
+.art-setting-item:hover {
+    background: #ffffff15 !important;
 }
 
 .art-setting-item-left{
     gap: 10px !important;
-    cursor: pointer;
+    cursor: pointer !important;
+    color: #ffffff !important;
 }
+
 .art-icon{
-    background: rgba(255, 255, 255, 0.082);
-    border-radius: 50%;
-   
-   
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-radius: 50% !important;
+    width: 28px !important;
+    height: 28px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+/* sub panel visibility */
+.art-setting-item-content {
+    background: #1a1a1aee !important;
+    border-radius: 16px !important;
+    border: 1px solid #ffffff1a !important;
+    backdrop-filter: blur(15px) !important;
+    -webkit-backdrop-filter: blur(15px) !important;
+}
+
+.art-setting-item-back {
+    color: #ffffff !important;
+    border-bottom: 1px solid #ffffff1a !important;
+    padding: 12px 15px !important;
+}
+
+/* source and quality list items */
+.art-setting-radio {
+    color: #ffffff !important;
+    padding: 10px 15px !important;
+    cursor: pointer !important;
+}
+
+.art-setting-radio:hover {
+    background: #ffffff15 !important;
+}
+
+.art-setting-radio.art-current {
+    color: var(--theme-color, #ff4d6d) !important;
+}
+
+.art-setting-radio.art-current::after {
+    background: var(--theme-color, #ff4d6d) !important;
+}
+
+@media (max-width: 768px) {
+    .artplayercontainer {
+        height: 100svh !important;
+    }
+
+    .art-settings {
+        width: calc(100vw - 20px) !important;
+        left: 10px !important;
+        right: 10px !important;
+        bottom: 60px !important;
+    }
+
+    .art-setting-item {
+        height: 48px !important;
+        line-height: 48px !important;
+        font-size: 12px !important;
+    }
 }

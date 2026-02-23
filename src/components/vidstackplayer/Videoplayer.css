@@ -1,4 +1,8 @@
 
+:root {
+    --theme-color: #ff4d6d;
+}
+
 .video-container {
   display: flex;
   justify-content: center;
@@ -305,4 +309,124 @@ custom-vds-button p{
     margin: .8rem .45rem !important;
     margin-bottom: .8rem !important;
 }
+}
+
+/* fix settings panel visibility */
+.vds-settings-menu {
+    background: #1a1a1aee !important;
+    border-radius: 10px !important;
+    border: 1px solid #ffffff1a !important;
+    backdrop-filter: blur(15px) !important;
+    -webkit-backdrop-filter: blur(15px) !important;
+}
+
+.vds-menu-items {
+    background: #1a1a1aee !important;
+    padding: 8px !important;
+}
+
+.vds-menu-item {
+    color: #ffffff !important;
+    background: transparent !important;
+}
+
+.vds-menu-item:hover {
+    background: #ffffff15 !important;
+    border-radius: 8px !important;
+}
+
+.vds-menu-item[data-checked],
+.vds-menu-item[aria-checked="true"] {
+    background: #ffffff20 !important;
+    color: var(--theme-color) !important;
+    border-radius: 8px !important;
+}
+
+/* quality selector visibility */
+.vds-quality-menu,
+.vds-audio-menu {
+    color: #ffffff !important;
+}
+
+/* make radio items visible */
+[data-media-player] .vds-menu-radio-group {
+    background: transparent !important;
+}
+
+[data-media-player] .vds-radio {
+    color: #ffffff !important;
+    padding: 10px 12px !important;
+}
+
+[data-media-player] .vds-radio:hover {
+    background: #ffffff15 !important;
+    border-radius: 8px !important;
+}
+
+[data-media-player] .vds-radio[aria-checked="true"] {
+    color: var(--theme-color) !important;
+}
+
+/* submenu panels - accessibility, speed, etc. */
+[data-media-player] .vds-menu-panel,
+[data-media-player] .vds-menu-panel *,
+[data-media-player] [data-menu-panel],
+[data-media-player] [data-menu-panel] * {
+    background: #1a1a1aee !important;
+    color: #ffffff !important;
+}
+
+[data-media-player] .vds-menu-section {
+    background: #1a1a1aee !important;
+}
+
+[data-media-player] .vds-menu-section-title {
+    color: #ffffff84 !important;
+    font-size: 0.7rem !important;
+    padding: 8px 12px 4px !important;
+}
+
+/* accessibility submenu specific */
+[data-media-player] .vds-accessibility-menu,
+[data-media-player] .vds-accessibility-menu * {
+    background: #1a1a1aee !important;
+    color: #ffffff !important;
+}
+
+/* sliders inside submenus */
+[data-media-player] .vds-slider {
+    --media-slider-track-bg: #ffffff30 !important;
+}
+
+[data-media-player] .vds-menu-slider-track {
+    background: #ffffff30 !important;
+}
+
+/* switch/toggle elements in accessibility menu */
+[data-media-player] .vds-toggle-button[aria-checked="true"] {
+    color: var(--theme-color) !important;
+}
+
+/* back button in submenus */
+[data-media-player] .vds-menu-close-button,
+[data-media-player] .vds-menu-back-button {
+    color: #ffffff !important;
+    background: transparent !important;
+    border-bottom: 1px solid #ffffff1a !important;
+}
+
+[data-media-player] .vds-menu-back-button:hover {
+    background: #ffffff15 !important;
+}
+
+/* chapter/caption menus */
+[data-media-player] .vds-captions-menu,
+[data-media-player] .vds-chapters-menu {
+    background: #1a1a1aee !important;
+    color: #ffffff !important;
+}
+
+/* font size / opacity sliders in accessibility */
+[data-media-player] .vds-menu-slider {
+    color: #ffffff !important;
 }

@@ -142,7 +142,6 @@
   font-size: 3rem;
   margin-bottom: 1rem;
   font-weight: 500;
-  font: bolder;
   border-bottom: 1px solid #ffffff14;
   padding-bottom: .5rem
   /* text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7); */
@@ -703,7 +702,7 @@ input:checked + .slider:before {
   margin-top: 1rem;
   z-index: 100;
   backdrop-filter: blur(10px);
-  --webkit-backdrop-filter: blur(10px)
+  --webkit-backdrop-filter: blur(10px);
   margin-bottom: 1.5rem;
 }
 
