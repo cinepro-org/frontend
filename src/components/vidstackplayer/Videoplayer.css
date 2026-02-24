@@ -16,14 +16,14 @@
 }
 
 .video-player{
-  max-width: 100%;
-  height: 100vh;
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 1;
-  object-fit: cover;
-  background: #211818
+    width: 100vw;
+    height: 100vh;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    object-fit: cover;
+    background: #211818;
 }
 
 .sources-container {
@@ -122,13 +122,18 @@ custom-vds-button p{
     font-size: .7rem !important;
     
 }
-.vds-menu-item{
- margin:0px !important;
- margin-bottom: 5px !important;
- font-size: .8rem !important;
- /* border-radius: 15px !important; */
- padding: 1.2rem .5rem ;
- /* background-color: #2323231f; */
+.vds-menu-item {
+    margin: 0px !important;
+    margin-bottom: 5px !important;
+    font-size: .8rem !important;
+    padding: 0.8rem 0.5rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    color: #ffffff !important;
+    background: transparent !important;
+    border-radius: 8px !important;
 }
 .vds-menu-item[data-checked] {
   background-color: #ffffff18; /* Example color */
@@ -190,14 +195,20 @@ custom-vds-button p{
 }
 
 .vds-custom-title {
-  position: absolute;
-  /* Adjust bottom to place it above the time slider */
-  bottom: 95px;
-  left: 20px;
-  color: #ffffff;
-  z-index: 100;
-  pointer-events: none; /* Allows clicks to pass through to the player */
-  text-align: start;
+    position: absolute;
+    bottom: 140px;
+    left: 20px;
+    color: #ffffff;
+    z-index: 50;
+    pointer-events: none;
+    text-align: start;
+    max-width: calc(100vw - 40px);
+}
+
+@media (max-width: 768px) {
+    .vds-custom-title {
+        display: none;
+    }
 }
 .vds-custom-title h1{
     display: inline-flex;
@@ -325,11 +336,6 @@ custom-vds-button p{
     padding: 8px !important;
 }
 
-.vds-menu-item {
-    color: #ffffff !important;
-    background: transparent !important;
-}
-
 .vds-menu-item:hover {
     background: #ffffff15 !important;
     border-radius: 8px !important;
@@ -367,51 +373,54 @@ custom-vds-button p{
     color: var(--theme-color) !important;
 }
 
-/* submenu panels - accessibility, speed, etc. */
-[data-media-player] .vds-menu-panel,
-[data-media-player] .vds-menu-panel *,
-[data-media-player] [data-menu-panel],
-[data-media-player] [data-menu-panel] * {
+/* submenu panels - all second level menus */
+[data-media-player] .vds-menu-panel {
     background: #1a1a1aee !important;
     color: #ffffff !important;
 }
 
+[data-media-player] .vds-menu-panel .vds-menu-items {
+    background: #1a1a1aee !important;
+}
+
+[data-media-player] .vds-menu-panel .vds-menu-item {
+    background: transparent !important;
+    color: #ffffff !important;
+}
+
+[data-media-player] .vds-menu-panel .vds-menu-item:hover {
+    background: #ffffff15 !important;
+}
+
+[data-media-player] .vds-menu-panel .vds-radio {
+    color: #ffffff !important;
+    background: transparent !important;
+}
+
+[data-media-player] .vds-menu-panel .vds-radio:hover {
+    background: #ffffff15 !important;
+}
+
+[data-media-player] .vds-menu-panel .vds-radio[aria-checked="true"] {
+    color: var(--theme-color) !important;
+}
+
 [data-media-player] .vds-menu-section {
     background: #1a1a1aee !important;
+    color: #ffffff !important;
 }
 
 [data-media-player] .vds-menu-section-title {
     color: #ffffff84 !important;
     font-size: 0.7rem !important;
     padding: 8px 12px 4px !important;
-}
-
-/* accessibility submenu specific */
-[data-media-player] .vds-accessibility-menu,
-[data-media-player] .vds-accessibility-menu * {
     background: #1a1a1aee !important;
-    color: #ffffff !important;
 }
 
-/* sliders inside submenus */
-[data-media-player] .vds-slider {
-    --media-slider-track-bg: #ffffff30 !important;
-}
-
-[data-media-player] .vds-menu-slider-track {
-    background: #ffffff30 !important;
-}
-
-/* switch/toggle elements in accessibility menu */
-[data-media-player] .vds-toggle-button[aria-checked="true"] {
-    color: var(--theme-color) !important;
-}
-
-/* back button in submenus */
-[data-media-player] .vds-menu-close-button,
+/* back button row at top of submenus */
 [data-media-player] .vds-menu-back-button {
     color: #ffffff !important;
-    background: transparent !important;
+    background: #1a1a1aee !important;
     border-bottom: 1px solid #ffffff1a !important;
 }
 
@@ -419,14 +428,269 @@ custom-vds-button p{
     background: #ffffff15 !important;
 }
 
-/* chapter/caption menus */
-[data-media-player] .vds-captions-menu,
-[data-media-player] .vds-chapters-menu {
-    background: #1a1a1aee !important;
+/* accessibility specific - font/opacity sliders and toggles */
+[data-media-player] .vds-menu-panel label {
+    color: #ffffff !important;
+    background: transparent !important;
+}
+
+[data-media-player] .vds-menu-panel input[type="range"] {
+    accent-color: var(--theme-color) !important;
+}
+
+[data-media-player] .vds-menu-panel select {
+    background: #2a2a2a !important;
+    color: #ffffff !important;
+    border: 1px solid #ffffff1a !important;
+}
+
+/* toggle switches */
+[data-media-player] .vds-toggle-button {
+    color: #ffffff !important;
+    background: transparent !important;
+}
+
+[data-media-player] .vds-toggle-button[aria-checked="true"] {
+    color: var(--theme-color) !important;
+}
+
+/* controls base */
+[data-media-player] .vds-controls {
+    overflow: visible !important;
+}
+
+[data-media-player] .vds-controls-group {
+    flex-wrap: nowrap !important;
+    overflow: visible !important;
+    min-width: 0 !important;
+    flex-shrink: 1 !important;
+}
+
+/* time group - never let it overflow or cut off */
+[data-media-player] .vds-time-group {
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+    overflow: visible !important;
+    min-width: max-content !important;
+}
+
+/* fullscreen button - push it away from time group */
+[data-media-player] .vds-fullscreen-button {
+    margin-left: auto !important;
+    flex-shrink: 0 !important;
+}
+
+/* bottom row: time on left, fullscreen on right with space between */
+[data-media-player] .vds-controls-group:last-of-type {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    flex-wrap: nowrap !important;
+    padding: 0 1rem 0.5rem !important;
+    gap: 1rem !important;
+}
+
+/* Auto quality button - prevent overflow */
+[data-media-player] .vds-menu-button {
+    flex-shrink: 0 !important;
+    white-space: nowrap !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: 80px !important;
+}
+
+/* mobile: shrink everything to fit */
+@media (max-width: 600px) {
+    [data-media-player] .vds-controls-group {
+        gap: 0 !important;
+    }
+
+    [data-media-player] .vds-button {
+        min-width: 28px !important;
+        width: 28px !important;
+        height: 28px !important;
+        padding: 2px !important;
+        margin: 0.2rem 0.1rem !important;
+        margin-bottom: 0.6rem !important;
+        flex-shrink: 0 !important;
+    }
+
+    [data-media-player] .vds-time-group {
+        font-size: 0.6rem !important;
+        padding: 4px 5px !important;
+        margin-bottom: 0.5rem !important;
+    }
+
+    /* hide seek button labels on mobile */
+    .vds-button p {
+        display: none !important;
+    }
+
+    /* hide airplay, cast, pip on mobile to save space */
+    [data-media-player] .vds-airplay-button,
+    [data-media-player] .vds-google-cast-button,
+    [data-media-player] .vds-pip-button {
+        display: none !important;
+    }
+
+    /* hide dividers on mobile */
+    .divider {
+        display: none !important;
+    }
+}
+
+/* override ALL vidstack media CSS variables at root level */
+/* these are the actual variables vidstack reads internally */
+[data-media-player] {
+    --media-menu-bg: #1a1a1a;
+    --media-menu-item-bg: transparent;
+    --media-menu-item-hover-bg: rgba(255,255,255,0.08);
+    --media-menu-border-radius: 10px;
+    --media-menu-item-border-radius: 8px;
+    --media-menu-item-padding: 10px 12px;
+    --media-menu-item-height: 40px;
+    --media-menu-section-bg: #1a1a1a;
+    --media-menu-top-bar-bg: #242424;
+    --media-font-family: inherit;
+    --media-menu-checkbox-bg: rgba(255,255,255,0.2);
+    --media-menu-checkbox-bg-active: var(--theme-color);
+    --media-menu-checkbox-handle-bg: #ffffff;
+}
+
+/* force dark on all menu containers including .light variant */
+[data-media-player] .vds-menu-items,
+[data-media-player] .light .vds-menu-items {
+    --default-text: #ffffff !important;
+    --default-text-secondary: rgba(255,255,255,0.5) !important;
+    --default-gray-50: rgba(255,255,255,0.08) !important;
+    --default-gray-100: rgba(255,255,255,0.15) !important;
+    --default-gray-200: rgba(255,255,255,0.08) !important;
+    --default-gray-300: #242424 !important;
+    --default-gray-400: #1a1a1a !important;
+    --default-inverse: #ffffff !important;
+    background: #1a1a1a !important;
     color: #ffffff !important;
 }
 
-/* font size / opacity sliders in accessibility */
-[data-media-player] .vds-menu-slider {
+[data-media-player] .vds-menu,
+[data-media-player] .vds-menu-panel,
+[data-media-player] .vds-menu-section,
+[data-media-player] .vds-menu-section-body {
+    background: #1a1a1a !important;
     color: #ffffff !important;
+}
+
+/* checkbox toggle styling */
+[data-media-player] .vds-menu-checkbox {
+    position: relative !important;
+    width: 36px !important;
+    height: 20px !important;
+    min-width: 36px !important;
+    border-radius: 10px !important;
+    background: #ffffff30 !important;
+    border: none !important;
+    cursor: pointer !important;
+    transition: background 0.2s !important;
+    margin-left: auto !important;
+    outline: none !important;
+}
+
+[data-media-player] .vds-menu-checkbox::after {
+    content: '' !important;
+    position: absolute !important;
+    top: 3px !important;
+    left: 3px !important;
+    width: 14px !important;
+    height: 14px !important;
+    border-radius: 50% !important;
+    background: #ffffff !important;
+    transition: transform 0.2s !important;
+}
+
+[data-media-player] .vds-menu-checkbox[aria-checked="true"] {
+    background: var(--theme-color) !important;
+}
+
+[data-media-player] .vds-menu-checkbox[aria-checked="true"]::after {
+    transform: translateX(16px) !important;
+}
+
+[data-media-player] .vds-menu-section-body {
+    background: #1a1a1aee !important;
+    padding: 4px !important;
+    border-radius: 8px !important;
+}
+
+[data-media-player] .vds-menu-item-label {
+    color: #ffffff !important;
+    font-size: 0.8rem !important;
+    flex: 1 !important;
+}
+
+/* bottom controls row - keep time and fullscreen together cleanly */
+[data-media-player] .vds-controls-group:last-of-type {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    flex-wrap: nowrap !important;
+    padding: 0 1rem !important;
+}
+
+/* time slider row - full width */
+[data-media-player] .vds-time-slider {
+    width: 100% !important;
+    min-width: 0 !important;
+}
+
+/* chapter title shouldn't push things out */
+[data-media-player] .vds-chapter-title {
+    display: none !important;
+}
+
+/* volume container wraps mute button + popup */
+[data-media-player] .vds-volume {
+    position: relative !important;
+    display: flex !important;
+    align-items: center !important;
+    flex-shrink: 0 !important;
+}
+
+/* volume popup appears above mute button on hover */
+[data-media-player] .vds-volume-popup {
+    position: absolute !important;
+    bottom: calc(100% + 8px) !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    z-index: 200 !important;
+    background: #1a1a1aee !important;
+    border-radius: 8px !important;
+    padding: 8px 4px !important;
+    border: 1px solid rgba(255,255,255,0.1) !important;
+    /* smooth expand/collapse */
+    overflow: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transition: opacity 0.2s ease !important;
+}
+
+/* show on hover over the whole volume group */
+[data-media-player] .vds-volume:hover .vds-volume-popup,
+[data-media-player] .vds-volume:focus-within .vds-volume-popup {
+    opacity: 1 !important;
+    pointer-events: auto !important;
+}
+
+[data-media-player] .vds-volume-slider {
+    height: 80px !important;
+    width: 24px !important;
+}
+
+/* hide on mobile */
+@media (max-width: 600px) {
+    [data-media-player] .vds-volume-popup {
+        display: none !important;
+    }
 }

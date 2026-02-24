@@ -1,5 +1,6 @@
 :root {
     --theme-color: #ff4d6d;
+    --background-main: #000000;
 }
 
 .artplayercontainer{
@@ -7,8 +8,8 @@
     max-width: 100vw;
     min-width: 100vw;
     background: var(--background-main);
-    
 }
+
 .art-settings{
     height: max-content !important;
     border-radius: 16px !important;
@@ -42,7 +43,14 @@
     color: #ffffff !important;
 }
 
-.art-icon{
+/* respect artplayer's own show/hide logic - never override display none */
+.art-icon[style*="display: none"],
+.art-icon[style*="display:none"] {
+    display: none !important;
+}
+
+/* settings panel icons get the circle background */
+.art-setting-item-left-icon .art-icon {
     background: rgba(255, 255, 255, 0.1) !important;
     border-radius: 50% !important;
     width: 28px !important;
@@ -50,6 +58,38 @@
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
+}
+
+/* control bar icons - no circle, just sized correctly */
+.art-controls .art-icon {
+    background: transparent !important;
+    border-radius: 0 !important;
+    width: auto !important;
+    height: auto !important;
+}
+
+/* settings toggle switch icons - no circle */
+.art-controls .art-icon {
+    background: transparent !important;
+    border-radius: 0 !important;
+    width: auto !important;
+    height: auto !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+/* but still respect artplayer's hide logic */
+.art-controls .art-icon[style*="display: none"],
+.art-controls .art-icon[style*="display:none"] {
+    display: none !important;
+}
+
+.art-setting-item-right .art-icon {
+    background: transparent !important;
+    width: auto !important;
+    height: auto !important;
+    border-radius: 0 !important;
 }
 
 /* sub panel visibility */

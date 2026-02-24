@@ -3,7 +3,6 @@ import Artplayer from "artplayer";
 import Hls from "hls.js";
 import artplayerPluginHlsControl from "artplayer-plugin-hls-control";
 import './Artplayer.css';
-import { useNavigate } from "react-router";
 import PropTypes from "prop-types";
 import { reverseLanguageMap } from "../../utils/languages";
 
@@ -20,7 +19,6 @@ export default function ArtPlayer({ files, subtitles, ...playerSettingsProps }) 
     const artRef = useRef(null);
     const playerInstanceRef = useRef(null);
     const hlsRef = useRef(null);
-    const navigate = useNavigate();
 
     // State to manage the current file index for fallback
     const [currentFileIndex, setCurrentFileIndex] = useState(0);
@@ -33,6 +31,11 @@ export default function ArtPlayer({ files, subtitles, ...playerSettingsProps }) 
     const currentTitle = playerSettingsProps.title;
     const currentPoster = playerSettingsProps.poster;
     const currentBackdrop = playerSettingsProps.backdrop;
+    const currentTheme = playerSettingsProps.theme;
+    const currentAutoplay = playerSettingsProps.autoplay;
+    const currentShowPoster = playerSettingsProps.showPoster;
+    const currentSubtitleColor = playerSettingsProps.subtitleColor;
+    const currentSubtitleFontSize = playerSettingsProps.subtitleFontSize;
 
     const getMimeType = (fileType) => {
         switch (fileType) {
@@ -119,7 +122,11 @@ export default function ArtPlayer({ files, subtitles, ...playerSettingsProps }) 
         }
     }, [currentContentId, currentContentType, currentSeasonNumber, currentEpisodeNumber, currentTitle, currentPoster, currentBackdrop]);
 
-    const debouncedSaveProgress = useMemo(() => debounce(saveProgressToLocalStorage, 5000), [saveProgressToLocalStorage]);
+    const debouncedSaveProgress = useRef(debounce(saveProgressToLocalStorage, 5000));
+
+    useEffect(() => {
+        debouncedSaveProgress.current = debounce(saveProgressToLocalStorage, 5000);
+    }, [saveProgressToLocalStorage]);
 
     // Function to try the next available source URL
     const tryNextSource = useCallback(() => {
@@ -243,27 +250,27 @@ export default function ArtPlayer({ files, subtitles, ...playerSettingsProps }) 
             type: getMimeType(defaultFile.type),
             title: currentTitle,
             volume: 0.7,
-            autoplay: playerSettingsProps.autoplay || false,
-            pip: true,
+            autoplay: currentAutoplay || false,
+            pip: false,
             setting: true,
             playbackRate: true,
-            aspectRatio: true,
+            aspectRatio: false,
             fullscreen: true,
             subtitleOffset: true,
             fullscreenWeb: false,
             miniProgressBar: true,
             playsInline: true,
-            theme: playerSettingsProps.theme ? `#${playerSettingsProps.theme}` : '#ff4d6d',
+            theme: currentTheme ? `#${currentTheme}` : '#ff4d6d',
             poster: currentPoster || '',
-            backdrop: playerSettingsProps.showPoster || false,
+            backdrop: currentShowPoster || false,
             subtitle: {
                 default: true,
                 url: sortedSubtitles && sortedSubtitles.length > 0 ? sortedSubtitles[0].url : '',
                 type: 'srt',
                 offset: -1.5,
                 style: {
-                    color: playerSettingsProps.subtitleColor || '#ffffff',
-                    fontSize: playerSettingsProps.subtitleFontSize ? `${playerSettingsProps.subtitleFontSize}px` : '20px',
+                    color: currentSubtitleColor || '#ffffff',
+                    fontSize: currentSubtitleFontSize ? `${currentSubtitleFontSize}px` : '20px',
                 },
                 encoding: 'utf-8',
             },
@@ -429,34 +436,6 @@ export default function ArtPlayer({ files, subtitles, ...playerSettingsProps }) 
             } catch (error) {
                 console.error("Error loading ArtPlayer playback progress from local storage:", error);
             }
-            // monitor buffer and nudge HLS when falling behind
-            const checkBufferHealth = () => {
-                if (!art.video || !hlsRef.current) return;
-
-                const currentTime = art.currentTime;
-                const buffered = art.video.buffered;
-                let bufferAhead = 0;
-
-                for (let i = 0; i < buffered.length; i++) {
-                    if (buffered.start(i) <= currentTime + 0.5 && buffered.end(i) > currentTime) {
-                        bufferAhead = buffered.end(i) - currentTime;
-                        break;
-                    }
-                }
-
-                // if buffer drops under 30s and hls is not loading, bump the max buffer
-                // this tells hls.js to load more aggressively
-                if (bufferAhead < 30 && hlsRef.current) {
-                    hlsRef.current.config.maxMaxBufferLength = 300;
-                    hlsRef.current.config.maxBufferLength = 60;
-                }
-            };
-
-            const bufferInterval = setInterval(checkBufferHealth, 2000);
-
-            art.on("destroy", () => {
-                clearInterval(bufferInterval);
-            });
 
         });
 
@@ -473,7 +452,7 @@ export default function ArtPlayer({ files, subtitles, ...playerSettingsProps }) 
 
 
         art.on("timeupdate", () => {
-            debouncedSaveProgress();
+            debouncedSaveProgress.current();
         });
 
         // handle seeking with buffer awareness
@@ -539,8 +518,6 @@ export default function ArtPlayer({ files, subtitles, ...playerSettingsProps }) 
     }, [
         files,
         sortedSubtitles,
-        navigate,
-        playerSettingsProps,
         currentContentId,
         currentContentType,
         currentSeasonNumber,
@@ -548,8 +525,13 @@ export default function ArtPlayer({ files, subtitles, ...playerSettingsProps }) 
         currentTitle,
         currentPoster,
         currentBackdrop,
-        debouncedSaveProgress,
-        currentFileIndex, // Add currentFileIndex to dependencies
+        currentTheme,
+        currentAutoplay,
+        currentShowPoster,
+        currentSubtitleColor,
+        currentSubtitleFontSize,
+        saveProgressToLocalStorage,
+        currentFileIndex,
         tryNextSource,
     ]);
 
