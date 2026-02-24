@@ -11,7 +11,6 @@
 }
 
 .art-settings{
-    height: max-content !important;
     border-radius: 16px !important;
     width: 260px !important;
     bottom: 70px !important;
@@ -20,7 +19,8 @@
     -webkit-backdrop-filter: blur(15px) !important;
     border: 1px solid #ffffff1a !important;
     box-shadow: 0 8px 32px rgba(0,0,0,0.5) !important;
-    overflow: hidden !important;
+    max-height: 60vh !important;
+    overflow: hidden auto !important;
 }
 
 .art-setting-item{
@@ -60,29 +60,45 @@
     justify-content: center !important;
 }
 
-/* control bar icons - no circle, just sized correctly */
-.art-controls .art-icon {
+/* match artplayer's own specificity: .art-controls .art-control .art-icon */
+.art-controls .art-control .art-icon {
     background: transparent !important;
     border-radius: 0 !important;
-    width: auto !important;
-    height: auto !important;
-}
-
-/* settings toggle switch icons - no circle */
-.art-controls .art-icon {
-    background: transparent !important;
-    border-radius: 0 !important;
-    width: auto !important;
-    height: auto !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
+    flex-shrink: 0 !important;
 }
 
-/* but still respect artplayer's hide logic */
-.art-controls .art-icon[style*="display: none"],
-.art-controls .art-icon[style*="display:none"] {
+/* fix SVG being pulled out of flex container by absolute positioning */
+/* .icon class on fullscreen SVG gets position:absolute from artplayer - override it */
+.art-controls .art-control .art-icon svg,
+.art-controls .art-control .art-icon svg.icon {
+    position: static !important;
+    width: 22px !important;
+    height: 22px !important;
+    display: block !important;
+    margin: auto !important;
+}
+
+/* respect artplayer's hide logic */
+.art-controls .art-control .art-icon[style*="display: none"],
+.art-controls .art-control .art-icon[style*="display:none"] {
     display: none !important;
+}
+
+/* nudge fullscreen icon to align with other control icons */
+.art-control-fullscreen .art-icon-fullscreenOn,
+.art-control-fullscreen .art-icon-fullscreenOff {
+    margin-bottom: 2px !important;
+}
+
+/* fullscreen SVG has class="icon" which artplayer scales differently — match settings icon size */
+.art-control-fullscreen .art-icon-fullscreenOn svg.icon,
+.art-control-fullscreen .art-icon-fullscreenOff svg.icon {
+    width: 22px !important;
+    height: 22px !important;
+    transform: scale(1.18) !important;
 }
 
 .art-setting-item-right .art-icon {
