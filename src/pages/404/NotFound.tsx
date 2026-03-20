@@ -4,9 +4,10 @@ import { Link } from 'react-router-dom';
 
 export default function NotFound() {
     return (
-        <div className="flex min-h-[80vh] w-full flex-1 flex-col items-center justify-center gap-6 p-4 text-center">
-            <h1 className="text-4xl font-bold">404 - Not Found</h1>
-            <p className="text-lg">The page you are looking for does not exist or has moved.</p>
+        <div className="flex min-h-[80vh] w-full flex-1 flex-col items-center justify-center gap-2 p-4 text-center">
+            <h1 className="text-4xl font-bold">404 - Mmmhh... Lost you are</h1>
+            <p className="text-lg">Found, this page is not</p>
+            <p className="text-muted-foreground text-lg italic">- Yoda</p>
             <div className={'mt-2 flex flex-col items-center justify-center gap-2'}>
                 <Button size="lg" asChild>
                     <Link to="/" className="mt-4">

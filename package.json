@@ -13,6 +13,7 @@
     "dependencies": {
         "@base-ui/react": "^1.1.0",
         "@fontsource-variable/dm-sans": "^5.2.8",
+        "@omss/sdk": "^1.0.2",
         "@tailwindcss/vite": "^4.1.17",
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",
