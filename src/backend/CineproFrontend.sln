@@ -1,0 +1,39 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CineProFrontend.Api", "CineProFrontend.Api\CineProFrontend.Api.csproj", "{E92248E1-6433-4799-9679-9C9D8DC69727}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2C4BB71E-4922-44FA-8E56-0A1338EE3936}"
+	ProjectSection(SolutionItems) = preProject
+		compose.yaml = compose.yaml
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CineProFrontend.Domain", "CineProFrontend.Domain\CineProFrontend.Domain.csproj", "{D2723F20-7711-406C-98B5-5F56E07C9D96}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CineProFrontend.Application", "CineProFrontend.Application\CineProFrontend.Application.csproj", "{1D5B66F7-806F-4795-B34B-C923A2EBC152}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CineProFrontend.Infrastructure", "CineProFrontend.Infrastructure\CineProFrontend.Infrastructure.csproj", "{6068BF21-A9A3-421B-A2CC-9BA3D09E90FE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E92248E1-6433-4799-9679-9C9D8DC69727}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E92248E1-6433-4799-9679-9C9D8DC69727}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E92248E1-6433-4799-9679-9C9D8DC69727}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E92248E1-6433-4799-9679-9C9D8DC69727}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D2723F20-7711-406C-98B5-5F56E07C9D96}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D2723F20-7711-406C-98B5-5F56E07C9D96}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D2723F20-7711-406C-98B5-5F56E07C9D96}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D2723F20-7711-406C-98B5-5F56E07C9D96}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1D5B66F7-806F-4795-B34B-C923A2EBC152}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1D5B66F7-806F-4795-B34B-C923A2EBC152}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1D5B66F7-806F-4795-B34B-C923A2EBC152}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1D5B66F7-806F-4795-B34B-C923A2EBC152}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6068BF21-A9A3-421B-A2CC-9BA3D09E90FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6068BF21-A9A3-421B-A2CC-9BA3D09E90FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6068BF21-A9A3-421B-A2CC-9BA3D09E90FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6068BF21-A9A3-421B-A2CC-9BA3D09E90FE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

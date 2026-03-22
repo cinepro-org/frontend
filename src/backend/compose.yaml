@@ -1,0 +1,7 @@
+﻿services:
+  movieapp.web:
+    image: movieapp.web
+    build:
+      context: .
+      dockerfile: MovieApp.Web/Dockerfile
+
